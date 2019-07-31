@@ -51,6 +51,7 @@ public class EvaluationManager {
         
         shipmentDateList.stream().forEach(day -> {
         	evaluateDailySolutionOfVan(day);
+        	evaluateDailySolutionOfBike(day);
         });
 
         logger.info("EvaluationManager:: Job ID: " + jobId + "\t finished..");  
@@ -71,6 +72,23 @@ public class EvaluationManager {
 		}
 
         logger.info("evaluateDailySolutionOfVan: finished..");  		
+	}
+	
+	private void evaluateDailySolutionOfBike(String shipmentDate) {
+        logger.info("evaluateDailySolutionOfBike: start....."); 
+		
+		List<DhlShipment> shipmentList = evaluationHelper.retrieveDailyShipmentForBike(shipmentDate);
+		logger.debug("Date: " + shipmentDate + ", No Of Shipment: " + shipmentList.size());
+		
+		if(!shipmentList.isEmpty()) {
+			ExistingSolution solution = new ExistingSolution(evaluationHelper, shipmentDate, shipmentList);
+			solution.evaluate();
+			
+			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Bike", shipmentList, bikeList);
+			saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), solution.getRouteList());
+		}
+
+        logger.info("evaluateDailySolutionOfBike: finished..");  		
 	}
 	
 	private LogisticsJobProblem saveLogisticsJobProblem(String shipmentDate, String vehicle, List<DhlShipment> shipments, List<DhlRoute> routes) {
