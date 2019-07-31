@@ -1,0 +1,4 @@
+--spring.config.location=file:///D:/Users/pwangsom/git/multi-objective-logistics-optimization/files/logistics.properties
+
+
+--spring.config.location=classpath:/application.properties,file:///D:/Users/pwangsom/git/multi-objective-logistics-optimization/files/logistics.properties
