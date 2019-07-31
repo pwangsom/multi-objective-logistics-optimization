@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.kmutt.sit.batch.tasks.DatabaseReaderDemo;
+import com.kmutt.sit.batch.tasks.ExistingSolutionEvaluator;
 import com.kmutt.sit.batch.tasks.LogisticsOptimizer;
 import com.kmutt.sit.batch.tasks.PropertiesReaderDemo;
 
@@ -36,6 +37,9 @@ public class BatchConfiguration {
     
     @Autowired
     private LogisticsOptimizer logisticsOptimizer;
+    
+    @Autowired
+    private ExistingSolutionEvaluator existingEvaluator;
      
     @Bean
     public Job processJob(){
@@ -44,22 +48,22 @@ public class BatchConfiguration {
         return jobs.get("processJob")
                 .incrementer(new RunIdIncrementer())
                 //.start(readProperties())
-                //.next(retrivePlayers())
+                //.next(accessDatabase())
                 //.next(optimizeShipmentLogistics())
-                .start(optimizeShipmentLogistics())
+                .start(evaluateExistingSolution())
                 .build();
     }
     
     @Bean
     public Step readProperties(){    	
-        return steps.get("Step-01")
+        return steps.get("readProperties")
                 .tasklet(propertiesReaderDemo)
                 .build();
     }
      
     @Bean
-    public Step retrivePlayers(){    	
-        return steps.get("Step-02")
+    public Step accessDatabase(){    	
+        return steps.get("accessDatabase")
                 .tasklet(databaseReaderDemo)
                 .build();
     }  
@@ -69,6 +73,13 @@ public class BatchConfiguration {
         return steps.get("Step-03")
                 .tasklet(logisticsOptimizer)
                 .build();
-    }  
+    }
+    
+    @Bean
+    public Step evaluateExistingSolution(){    	
+        return steps.get("evaluateExistingSolution")
+                .tasklet(existingEvaluator)
+                .build();
+    }    
     
 }

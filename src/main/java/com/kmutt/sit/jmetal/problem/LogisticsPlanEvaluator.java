@@ -31,7 +31,7 @@ public class LogisticsPlanEvaluator {
 	@Getter
 	private Integer utilization = 0;
 	@Getter
-	private Integer effortScore = 0;
+	private Integer familiarity = 0;
 	
 	private IntegerSolution solution;
 	private LogisticsNsgaIIIHelper helper;
@@ -93,7 +93,7 @@ public class LogisticsPlanEvaluator {
 		});
 		
 		utilization = util[0];
-		effortScore = score[0];
+		familiarity = score[0];
 	}
 	
 	private Integer determineUtilizationOfEachVehicle(DhlRoute route, Integer noOfShipment) {

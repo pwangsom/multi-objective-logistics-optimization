@@ -33,6 +33,9 @@ public class LogisticsJobProblem {
 
 	@Column(name="shipment_list")
 	private String shipmentList;
+	
+	@Column(name="solution_type")
+	private String solutionType;	
 
 	@Column(name="vehicle_type")
 	private String vehicleType;

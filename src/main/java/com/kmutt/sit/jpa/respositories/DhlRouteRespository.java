@@ -15,5 +15,7 @@ public interface DhlRouteRespository extends JpaRepository<DhlRoute, Integer>{
 	List<DhlRoute> findByVehicleTypeInOrderByChromosomeIdAsc(List<String> vehicleTypes);	
 
 	List<DhlRoute> findByVehicleTypeInOrderByChromosomeIdDesc(List<String> vehicleTypes);
+	
+	List<DhlRoute> findByRouteInOrderByChromosomeIdAsc(List<String> routes);
 
 }
