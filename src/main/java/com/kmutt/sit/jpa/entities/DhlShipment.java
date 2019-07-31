@@ -80,6 +80,9 @@ public class DhlShipment  {
 	private String deliveryType;
 
 	//private Object geom;
+	
+	@Column(name="is_valid_for_mop")
+	private Integer isValidForMop;
 
 	private BigDecimal lat;
 

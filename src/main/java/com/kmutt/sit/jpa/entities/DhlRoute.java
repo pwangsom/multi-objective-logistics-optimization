@@ -15,6 +15,15 @@ public class DhlRoute {
 	@Id
 	@Column(name="route_id")
 	private Integer routeId;
+	
+	@Column(name="avg_allday")
+	private Integer avgAllday;
+	
+	@Column(name="avg_saturday")
+	private Integer avgSaturday;
+
+	@Column(name="avg_weekday")
+	private Integer avgWeekday;
 
 	@Column(name="chromosome_id")
 	private Integer chromosomeId;
