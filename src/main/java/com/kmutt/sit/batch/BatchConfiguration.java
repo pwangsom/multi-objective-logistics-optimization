@@ -12,10 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kmutt.sit.batch.tasks.DatabaseReaderDemo;
 import com.kmutt.sit.batch.tasks.ExistingSolutionEvaluator;
+import com.kmutt.sit.batch.tasks.LogisticsHelperBuilder;
 import com.kmutt.sit.batch.tasks.LogisticsOptimizer;
-import com.kmutt.sit.batch.tasks.PropertiesReaderDemo;
 
 @Configuration
 @EnableBatchProcessing
@@ -30,10 +29,7 @@ public class BatchConfiguration {
     private StepBuilderFactory steps;
     
     @Autowired
-    private PropertiesReaderDemo propertiesReaderDemo;
-    
-    @Autowired
-    private DatabaseReaderDemo databaseReaderDemo;
+    private LogisticsHelperBuilder logisticsHelperBuilder;
     
     @Autowired
     private LogisticsOptimizer logisticsOptimizer;
@@ -47,30 +43,21 @@ public class BatchConfiguration {
     	
         return jobs.get("processJob")
                 .incrementer(new RunIdIncrementer())
-                //.start(readProperties())
-                //.next(accessDatabase())
-                //.next(optimizeShipmentLogistics())
-                .start(evaluateExistingSolution())
-                .build();
-    }
-    
-    @Bean
-    public Step readProperties(){    	
-        return steps.get("readProperties")
-                .tasklet(propertiesReaderDemo)
+                .start(initialLogisticsHelper())
+                .next(evaluateExistingSolution())
                 .build();
     }
      
     @Bean
-    public Step accessDatabase(){    	
-        return steps.get("accessDatabase")
-                .tasklet(databaseReaderDemo)
+    public Step initialLogisticsHelper(){    	
+        return steps.get("initialLogisticsHelper")
+                .tasklet(logisticsHelperBuilder)
                 .build();
     }  
 
     @Bean
     public Step optimizeShipmentLogistics(){    	
-        return steps.get("Step-03")
+        return steps.get("optimizeShipmentLogistics")
                 .tasklet(logisticsOptimizer)
                 .build();
     }

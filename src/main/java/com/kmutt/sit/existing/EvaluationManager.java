@@ -50,8 +50,16 @@ public class EvaluationManager {
         logger.debug("" + shipmentDateList);
         
         shipmentDateList.stream().forEach(day -> {
-        	evaluateDailySolutionOfVan(day);
-        	evaluateDailySolutionOfBike(day);
+        	
+        	if(evaluationHelper.getVehicleTypes().contains("Van")) {
+        		evaluateDailySolutionOfVan(day);
+        	}
+        	
+        	// Allocation shipment for bike
+        	if(evaluationHelper.getVehicleTypes().contains("Bike")) {
+        		evaluateDailySolutionOfBike(day);        		
+        	}
+        	
         });
 
         logger.info("EvaluationManager:: Job ID: " + jobId + "\t finished..");  
@@ -68,7 +76,7 @@ public class EvaluationManager {
 			solution.evaluate();
 			
 			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Van", shipmentList, vanList);
-			saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), solution.getRouteList());
+			saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), vanList, shipmentList);
 		}
 
         logger.info("evaluateDailySolutionOfVan: finished..");  		
@@ -85,7 +93,7 @@ public class EvaluationManager {
 			solution.evaluate();
 			
 			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Bike", shipmentList, bikeList);
-			saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), solution.getRouteList());
+			saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), bikeList, shipmentList);
 		}
 
         logger.info("evaluateDailySolutionOfBike: finished..");  		
@@ -108,15 +116,21 @@ public class EvaluationManager {
 		return evaluationHelper.saveLogisticsJobProblem(problem);
 	}
 	
-	private void saveLogisticsJobResults(Integer problemId, Integer noOfCar, Double utilization, Double familiarity, List<DhlRoute> routes) {
+	private void saveLogisticsJobResults(Integer problemId, Integer noOfCar, Double utilization, Double familiarity, List<DhlRoute> routes, List<DhlShipment> shipmentList) {
 		
 		LogisticsJobResult result = new LogisticsJobResult();
 		result.setProblemId(problemId);
 		result.setSolutionIndex(0);
 		
-
-		String routeList = routes.stream().map(r -> r.getChromosomeId()).collect(Collectors.toList()).toString();
-		result.setSolutionDetail(JavaUtils.removeStringOfList(routeList));
+		List<Integer> routeList = new ArrayList<Integer>();
+		
+		shipmentList.stream().forEach(s -> {
+			DhlRoute route = routes.stream().filter(r -> r.getRoute().equalsIgnoreCase(s.getPudRte())).collect(Collectors.toList()).get(0);
+			routeList.add(route.getChromosomeId());
+		});
+		
+		result.setSolutionDetail(JavaUtils.removeStringOfList(routeList.toString()));
+		
 		result.setObjective1(BigDecimal.valueOf(noOfCar));
 		result.setObjective2(BigDecimal.valueOf(utilization));
 		result.setObjective3(BigDecimal.valueOf(familiarity));
