@@ -11,6 +11,7 @@ import com.kmutt.sit.existing.EvaluationHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteAreaPortion;
 import com.kmutt.sit.jpa.entities.DhlRoutePostcodeArea;
+import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 
 import lombok.Getter;
@@ -45,71 +46,46 @@ public class ExistingSolution {
         vehicleList = helper.retrieveRoutesByRouteList(routes);
         noOfCar = routes.size();
         
-        assessUtilization();
-        assessFamiliarity();
+        assessUtilizationFamiliarity();
         
         logger.info("evaluate: finished..");          
 	}
 	
-	private void assessFamiliarity() {
-        logger.debug("assessFamiliarity: start.....");
+	private void assessUtilizationFamiliarity() {
+        logger.debug("assessUtilizationFamiliarity: start....."); 
         
+		Double[] accumulateUtil = {0.0};
 		Double[] areaResponsiblity = {0.0};
 		Double[] frequentHistory = {0.0};
-		
-		shipmentList.stream().forEach(s -> {
-						
-			// List<DhlRoutePostcodeArea> ra = new ArrayList<DhlRoutePostcodeArea>();
-			// List<DhlRouteAreaPortion> rap = new ArrayList<DhlRouteAreaPortion>();
-			
-			/*
-			 * for(DhlRoutePostcodeArea rat : helper.getRouteAreaList()) {
-			 * logger.debug(rat.getRoute() + " <==> " + s.getPudRte());
-			 * logger.debug(rat.getAreaCode() + " <==> " + s.getAreaCode());
-			 * 
-			 * if(rat.getRoute().equalsIgnoreCase(s.getPudRte())) {
-			 * logger.debug(rat.getRoute() + " <==> " + s.getPudRte() + ": EQUAL"); }
-			 * if(rat.getAreaCode() == s.getAreaCode()) { logger.debug(rat.getAreaCode() +
-			 * " <==> " + s.getAreaCode() + ": EQUAL"); } }
-			 */
-			
-			logger.debug("1st size" + helper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList()));
-			logger.debug("2st size" + helper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList()));
-			
-			List<DhlRoutePostcodeArea> ra = helper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
-			List<DhlRouteAreaPortion> rap =  helper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
-			
-			if(!ra.isEmpty()) areaResponsiblity[0] += 1.0;
-			
-			if(!rap.isEmpty())
-				frequentHistory[0] += rap.get(0).getAreaPortion().doubleValue();
-			
-			logger.debug(String.format("Shipment Key: %d -> [%d, %s] => {area:%.4f, history:%.4f}", s.getShipmentKey(), s.getAreaCode(), s.getPudRte(), areaResponsiblity[0], frequentHistory[0]));
-			
-		});
-		
-		familiarity = areaResponsiblity[0] + frequentHistory[0];
-
-        logger.debug("assessFamiliarity: finished..");     
-	}
-	
-	private void assessUtilization() {
-        logger.debug("assessUtilization: start....."); 
-        
-		Double[] accumulate = {0.0};
 		
 		vehicleList.stream().forEach(vid -> {
 			
 			List<DhlShipment> shipmentsOfEachVehicleId = shipmentList.stream().filter(s -> s.getPudRte().equalsIgnoreCase(vid.getRoute())).collect(Collectors.toList());
-			Double actualShipments = Double.valueOf(shipmentsOfEachVehicleId.size());
 			
-			accumulate[0] += calculateUtilizationOfEachVehicle(actualShipments, Double.valueOf(vid.getAvgAllday()));
+			Double actualShipments = Double.valueOf(shipmentsOfEachVehicleId.size());
+			DhlRouteUtilization routeUtil = helper.getRouteUtilizationMapping().get(vid.getRoute());
+			
+			accumulateUtil[0] += calculateUtilizationOfEachVehicle(actualShipments, routeUtil.getAllAvg().doubleValue());
+			
+			
+			shipmentsOfEachVehicleId.stream().forEach(s -> {
+				
+				List<DhlRoutePostcodeArea> ra = helper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vid.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
+				List<DhlRouteAreaPortion> rap =  helper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vid.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
+				
+				if(!ra.isEmpty()) areaResponsiblity[0] += 1.0;
+				
+				if(!rap.isEmpty())
+					frequentHistory[0] += rap.get(0).getAreaPortion().doubleValue();
+				
+			});
 			
 		});
 		
-		utilization = accumulate[0] / vehicleList.size();
+		utilization = accumulateUtil[0] / vehicleList.size();
+		familiarity = areaResponsiblity[0] + frequentHistory[0];
 
-        logger.debug("assessUtilization: finished..");     
+        logger.debug("assessUtilizationFamiliarity: finished..");     
 	}
 	
 	private Double calculateUtilizationOfEachVehicle(Double actualShipments, Double utilizedShipments) {

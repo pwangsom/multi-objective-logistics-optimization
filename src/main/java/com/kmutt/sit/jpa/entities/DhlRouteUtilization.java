@@ -1,5 +1,7 @@
 package com.kmutt.sit.jpa.entities;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -23,7 +25,10 @@ public class DhlRouteUtilization {
 	private Integer allDays;
 	
 	@Column(name="all_shipments")
-	private Integer allShipments;	
+	private Integer allShipments;
+	
+	@Column(name="all_avg")
+	private BigDecimal allAvg;
 
 	@Column(name="weekday_days")
 	private Integer weekdayDays;
@@ -31,10 +36,15 @@ public class DhlRouteUtilization {
 	@Column(name="weekday_shipments")
 	private Integer weekdayShipments;
 
+	@Column(name="weekday_avg")
+	private BigDecimal weekdayAvg;
+
 	@Column(name="sat_days")
 	private Integer satDays;
 	
 	@Column(name="sat_shipments")
 	private Integer satShipments;	
 
+	@Column(name="sat_avg")
+	private BigDecimal satAvg;
 }

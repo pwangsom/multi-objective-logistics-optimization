@@ -1,7 +1,9 @@
 package com.kmutt.sit.existing;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteAreaPortion;
 import com.kmutt.sit.jpa.entities.DhlRoutePostcodeArea;
+import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
@@ -22,6 +25,7 @@ import com.kmutt.sit.jpa.respositories.DhlDailyShipmentRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteAreaPortionRepository;
 import com.kmutt.sit.jpa.respositories.DhlRoutePostcodeAreaRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteRespository;
+import com.kmutt.sit.jpa.respositories.DhlRouteUtilizationRepository;
 import com.kmutt.sit.jpa.respositories.DhlShipmentRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobProblemRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobRepository;
@@ -33,6 +37,27 @@ import lombok.Getter;
 public class EvaluationHelper {
 
 	private static Logger logger = LoggerFactory.getLogger(EvaluationHelper.class);
+    
+    @Autowired
+    private DhlShipmentRepository dhlShipmentRepository;    
+    @Autowired
+    private DhlAreaRouteScoreRespository dhlAreaRouteScoreRespository;    
+    @Autowired
+    private DhlRouteRespository dhlRouteRespository;     
+    @Autowired
+    private DhlRoutePostcodeAreaRespository dhlRoutePostcodeAreaRespository;     
+    @Autowired
+    private DhlRouteAreaPortionRepository dhlRouteAreaPortionRepository;      
+    @Autowired
+    private DhlRouteUtilizationRepository dhlRouteUtilizationRepository;     
+    @Autowired
+    private DhlDailyShipmentRespository dhlDailyShipmentRespository;    
+    @Autowired
+    private LogisticsJobRepository logisticsJobRepository;    
+    @Autowired
+    private LogisticsJobProblemRepository logisticsJobProblemRepository;    
+    @Autowired
+    private LogisticsJobResultRepository logisticsJobResultRepository;
 
     @Value("${shipment.month}")
     private String shipmentMonth;
@@ -61,24 +86,8 @@ public class EvaluationHelper {
     @Getter
     private List<DhlRouteAreaPortion> routeAreaPortionList;
     
-    @Autowired
-    private DhlShipmentRepository dhlShipmentRepository;    
-    @Autowired
-    private DhlAreaRouteScoreRespository dhlAreaRouteScoreRespository;    
-    @Autowired
-    private DhlRouteRespository dhlRouteRespository;     
-    @Autowired
-    private DhlRoutePostcodeAreaRespository dhlRoutePostcodeAreaRespository;     
-    @Autowired
-    private DhlRouteAreaPortionRepository dhlRouteAreaPortionRepository;     
-    @Autowired
-    private DhlDailyShipmentRespository dhlDailyShipmentRespository;    
-    @Autowired
-    private LogisticsJobRepository logisticsJobRepository;    
-    @Autowired
-    private LogisticsJobProblemRepository logisticsJobProblemRepository;    
-    @Autowired
-    private LogisticsJobResultRepository logisticsJobResultRepository;
+    @Getter
+    private Map<String, DhlRouteUtilization> routeUtilizationMapping;
     
     @PostConstruct
     private void postConstruct() {
@@ -87,6 +96,8 @@ public class EvaluationHelper {
     	this.bikeTypes = Arrays.asList(bikeType.split(","));
     	this.routeAreaList = dhlRoutePostcodeAreaRespository.findAll();
     	this.routeAreaPortionList = dhlRouteAreaPortionRepository.findAll();
+    	
+    	initialRouteUtilizationMapping();
     }
 	
     public List<String> retrieveShipmentDateList(){    	
@@ -121,5 +132,15 @@ public class EvaluationHelper {
     
     public void saveLogisticsJobResult(LogisticsJobResult result) {    
     	logisticsJobResultRepository.save(result);
+    }
+    
+    private void initialRouteUtilizationMapping() {
+    	List<DhlRouteUtilization> routes = dhlRouteUtilizationRepository.findAll();
+    	
+    	routeUtilizationMapping = new HashMap<String, DhlRouteUtilization>();
+    	
+    	routes.stream().forEach(r -> {
+    		routeUtilizationMapping.put(r.getRoute(), r);
+    	});
     }
 }
