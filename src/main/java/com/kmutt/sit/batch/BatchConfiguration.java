@@ -54,13 +54,6 @@ public class BatchConfiguration {
                 .tasklet(logisticsHelperBuilder)
                 .build();
     }  
-
-    @Bean
-    public Step optimizeShipmentLogistics(){    	
-        return steps.get("optimizeShipmentLogistics")
-                .tasklet(logisticsOptimizer)
-                .build();
-    }
     
     @Bean
     public Step evaluateExistingSolution(){    	
@@ -68,5 +61,11 @@ public class BatchConfiguration {
                 .tasklet(existingEvaluator)
                 .build();
     }    
-    
+
+    @Bean
+    public Step optimizeShipmentLogistics(){    	
+        return steps.get("optimizeShipmentLogistics")
+                .tasklet(logisticsOptimizer)
+                .build();
+    }
 }

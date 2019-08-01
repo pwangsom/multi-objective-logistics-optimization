@@ -59,7 +59,24 @@ public class ExistingSolution {
 		
 		shipmentList.stream().forEach(s -> {
 						
-			List<DhlRoutePostcodeArea> ra =  helper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
+			// List<DhlRoutePostcodeArea> ra = new ArrayList<DhlRoutePostcodeArea>();
+			// List<DhlRouteAreaPortion> rap = new ArrayList<DhlRouteAreaPortion>();
+			
+			/*
+			 * for(DhlRoutePostcodeArea rat : helper.getRouteAreaList()) {
+			 * logger.debug(rat.getRoute() + " <==> " + s.getPudRte());
+			 * logger.debug(rat.getAreaCode() + " <==> " + s.getAreaCode());
+			 * 
+			 * if(rat.getRoute().equalsIgnoreCase(s.getPudRte())) {
+			 * logger.debug(rat.getRoute() + " <==> " + s.getPudRte() + ": EQUAL"); }
+			 * if(rat.getAreaCode() == s.getAreaCode()) { logger.debug(rat.getAreaCode() +
+			 * " <==> " + s.getAreaCode() + ": EQUAL"); } }
+			 */
+			
+			logger.debug("1st size" + helper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList()));
+			logger.debug("2st size" + helper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList()));
+			
+			List<DhlRoutePostcodeArea> ra = helper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
 			List<DhlRouteAreaPortion> rap =  helper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(s.getPudRte()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
 			
 			if(!ra.isEmpty()) areaResponsiblity[0] += 1.0;

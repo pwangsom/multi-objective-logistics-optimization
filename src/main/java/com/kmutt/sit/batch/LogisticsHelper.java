@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,9 @@ import com.kmutt.sit.jpa.respositories.LogisticsJobResultRepository;
 import lombok.Getter;
 
 @Service
-public class LogisticsHelper {
+public class LogisticsHelper {	
+
+	private static Logger logger = LoggerFactory.getLogger(LogisticsHelper.class);
 	
     @Value("${shipment.month}")
     protected String shipmentMonth;
@@ -50,6 +54,7 @@ public class LogisticsHelper {
     
     @Getter
     protected List<DhlRoutePostcodeArea> routeAreaList;
+    
     @Getter
     protected List<DhlRouteAreaPortion> routeAreaPortionList;
     
@@ -78,12 +83,16 @@ public class LogisticsHelper {
     	this.vanTypes = Arrays.asList(vanType.split(","));
     	this.bikeTypes = Arrays.asList(bikeType.split(","));
     	this.routeAreaList = new ArrayList<DhlRoutePostcodeArea>();
+    	this.routeAreaPortionList = new ArrayList<DhlRouteAreaPortion>();
     }
     
     
     public void initial() {
-    	routeAreaList = dhlRoutePostcodeAreaRespository.findAll();
-    	routeAreaPortionList = dhlRouteAreaPortionRepository.findAll();
+    	routeAreaList.addAll(dhlRoutePostcodeAreaRespository.findAll());
+    	routeAreaPortionList.addAll(dhlRouteAreaPortionRepository.findAll());
+    	
+    	logger.info("Route-Area        : " + routeAreaList.size());
+    	logger.info("Route-Area-Portion: " + routeAreaPortionList.size());
     }
 
 }
