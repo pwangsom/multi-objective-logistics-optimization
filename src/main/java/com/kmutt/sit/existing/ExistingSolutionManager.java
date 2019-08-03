@@ -2,6 +2,7 @@ package com.kmutt.sit.existing;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,31 +11,31 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import com.kmutt.sit.existing.evaluation.ExistingSolution;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
 import com.kmutt.sit.utilities.JavaUtils;
+import com.kmutt.sit.utilities.LogisticsOptimizationHelper;
 
 import lombok.Setter;
 
 
 @Controller
-public class EvaluationManager {
+public class ExistingSolutionManager {
 
-	private static Logger logger = LoggerFactory.getLogger(EvaluationManager.class);
+	private static Logger logger = LoggerFactory.getLogger(ExistingSolutionManager.class);
 	
 	@Setter
 	private String jobId;
 	
 	@Autowired
-	private EvaluationHelper evaluationHelper;
+	private LogisticsOptimizationHelper evaluationHelper;
 	
 	private List<DhlRoute> vanList;
 	private List<DhlRoute> bikeList;
 	
-	public EvaluationManager() {
+	public ExistingSolutionManager() {
 		vanList = new ArrayList<DhlRoute>();
 		bikeList = new ArrayList<DhlRoute>();
 	}
@@ -45,7 +46,7 @@ public class EvaluationManager {
         
         prepareInformation();
         
-        List<String> shipmentDateList = evaluationHelper.retrieveShipmentDateList();
+        List<String> shipmentDateList = evaluationHelper.retrieveShipmentDateAllList();
         
         logger.debug("" + shipmentDateList);
         
@@ -68,11 +69,12 @@ public class EvaluationManager {
 	private void evaluateDailySolutionOfVan(String shipmentDate) {
         logger.info("evaluateDailySolutionOfVan: start....."); 
 		
-		List<DhlShipment> shipmentList = evaluationHelper.retrieveDailyShipmentForVan(shipmentDate);
+		List<DhlShipment> shipmentList = evaluationHelper.retrieveValidDailyShipmentForVan(shipmentDate)
+											.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
 		logger.debug("Date: " + shipmentDate + ", No Of Shipment: " + shipmentList.size());
 		
 		if(!shipmentList.isEmpty()) {
-			ExistingSolution solution = new ExistingSolution(evaluationHelper, shipmentDate, shipmentList);
+			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(evaluationHelper, shipmentDate, shipmentList);
 			solution.evaluate();
 			
 			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Van", shipmentList, vanList);
@@ -85,11 +87,12 @@ public class EvaluationManager {
 	private void evaluateDailySolutionOfBike(String shipmentDate) {
         logger.info("evaluateDailySolutionOfBike: start....."); 
 		
-		List<DhlShipment> shipmentList = evaluationHelper.retrieveDailyShipmentForBike(shipmentDate);
+		List<DhlShipment> shipmentList = evaluationHelper.retrieveDailyValidShipmentForBike(shipmentDate)
+											.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
 		logger.debug("Date: " + shipmentDate + ", No Of Shipment: " + shipmentList.size());
 		
 		if(!shipmentList.isEmpty()) {
-			ExistingSolution solution = new ExistingSolution(evaluationHelper, shipmentDate, shipmentList);
+			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(evaluationHelper, shipmentDate, shipmentList);
 			solution.evaluate();
 			
 			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Bike", shipmentList, bikeList);
@@ -132,8 +135,8 @@ public class EvaluationManager {
 		result.setSolutionDetail(JavaUtils.removeStringOfList(routeList.toString()));
 		
 		result.setObjective1(BigDecimal.valueOf(noOfCar));
-		result.setObjective2(BigDecimal.valueOf(utilization));
-		result.setObjective3(BigDecimal.valueOf(familiarity));
+		result.setObjective2(BigDecimal.valueOf(utilization * -1));
+		result.setObjective3(BigDecimal.valueOf(familiarity * -1));
 		
 		result.setNormalizedObjective1(BigDecimal.valueOf(0.0));
 		result.setNormalizedObjective2(BigDecimal.valueOf(0.0));

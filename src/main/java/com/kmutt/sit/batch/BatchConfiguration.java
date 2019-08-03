@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kmutt.sit.batch.tasks.ExistingSolutionEvaluator;
-import com.kmutt.sit.batch.tasks.LogisticsHelperBuilder;
+import com.kmutt.sit.batch.tasks.ExistingEvaluator;
 import com.kmutt.sit.batch.tasks.LogisticsOptimizer;
 
 @Configuration
@@ -29,13 +28,10 @@ public class BatchConfiguration {
     private StepBuilderFactory steps;
     
     @Autowired
-    private LogisticsHelperBuilder logisticsHelperBuilder;
-    
-    @Autowired
     private LogisticsOptimizer logisticsOptimizer;
     
     @Autowired
-    private ExistingSolutionEvaluator existingEvaluator;
+    private ExistingEvaluator existingEvaluator;
      
     @Bean
     public Job processJob(){
@@ -43,17 +39,10 @@ public class BatchConfiguration {
     	
         return jobs.get("processJob")
                 .incrementer(new RunIdIncrementer())
-                .start(initialLogisticsHelper())
-                .next(evaluateExistingSolution())
+                .start(evaluateExistingSolution())
+                // .next(optimizeShipmentLogistics())
                 .build();
     }
-     
-    @Bean
-    public Step initialLogisticsHelper(){    	
-        return steps.get("initialLogisticsHelper")
-                .tasklet(logisticsHelperBuilder)
-                .build();
-    }  
     
     @Bean
     public Step evaluateExistingSolution(){    	

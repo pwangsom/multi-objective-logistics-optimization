@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.kmutt.sit.existing.EvaluationManager;
+import com.kmutt.sit.existing.ExistingSolutionManager;
 
 @Component
-public class ExistingSolutionEvaluator implements Tasklet {
+public class ExistingEvaluator implements Tasklet {
 	
 	private static Logger logger = LoggerFactory.getLogger(PropertiesReaderDemo.class);
 	
@@ -21,7 +21,7 @@ public class ExistingSolutionEvaluator implements Tasklet {
     private boolean isEnabled;
     
     @Autowired
-    private EvaluationManager evaluationManager;
+    private ExistingSolutionManager evaluationManager;
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {

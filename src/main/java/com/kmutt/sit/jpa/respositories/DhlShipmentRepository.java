@@ -16,4 +16,7 @@ public interface DhlShipmentRepository extends JpaRepository<DhlShipment, Intege
 	@Query("SELECT DISTINCT actDt FROM DhlShipment ORDER BY actDt")
 	List<String> findDistinctActDt();
 
+	@Query("SELECT COUNT(s) FROM DhlShipment s WHERE actDt = ?1 AND pudRte = ?2")
+	Integer countByActDtAndPudRte(String actDt, String pudRte);
+	
 }

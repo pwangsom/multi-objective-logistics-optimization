@@ -1,11 +1,15 @@
-package com.kmutt.sit.existing;
+package com.kmutt.sit.utilities;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.kmutt.sit.jpa.entities.DhlAreaRouteScore;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteAreaPortion;
 import com.kmutt.sit.jpa.entities.DhlRoutePostcodeArea;
 import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
 import com.kmutt.sit.jpa.entities.DhlShipment;
+import com.kmutt.sit.jpa.entities.LogisticsJob;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
+import com.kmutt.sit.jpa.entities.services.StoredProcedureService;
 import com.kmutt.sit.jpa.respositories.DhlAreaRouteScoreRespository;
 import com.kmutt.sit.jpa.respositories.DhlDailyShipmentRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteAreaPortionRepository;
@@ -34,9 +41,9 @@ import com.kmutt.sit.jpa.respositories.LogisticsJobResultRepository;
 import lombok.Getter;
 
 @Service
-public class EvaluationHelper {
+public class LogisticsOptimizationHelper {
 
-	private static Logger logger = LoggerFactory.getLogger(EvaluationHelper.class);
+	private static Logger logger = LoggerFactory.getLogger(LogisticsOptimizationHelper.class);
     
     @Autowired
     private DhlShipmentRepository dhlShipmentRepository;    
@@ -58,6 +65,8 @@ public class EvaluationHelper {
     private LogisticsJobProblemRepository logisticsJobProblemRepository;    
     @Autowired
     private LogisticsJobResultRepository logisticsJobResultRepository;
+    @Autowired
+    private StoredProcedureService storedProcedureService;
 
     @Value("${shipment.month}")
     private String shipmentMonth;
@@ -89,6 +98,13 @@ public class EvaluationHelper {
     @Getter
     private Map<String, DhlRouteUtilization> routeUtilizationMapping;
     
+
+    private List<String> shipmentDateList;
+    
+    public LogisticsOptimizationHelper() {
+    	this.shipmentDateList = new ArrayList<String>();
+    }
+    
     @PostConstruct
     private void postConstruct() {
     	this.vehicleTypeList = Arrays.asList(vehicleTypes.split(","));
@@ -99,16 +115,80 @@ public class EvaluationHelper {
     	
     	initialRouteUtilizationMapping();
     }
-	
-    public List<String> retrieveShipmentDateList(){    	
-    	return dhlShipmentRepository.findDistinctActDt();
+    
+    public List<String> retrieveShipmentDateList(){
+    	
+    	// For all days in month
+    	if(this.shipmentDate.contentEquals("00")) {
+    		this.shipmentDateList.addAll(dhlShipmentRepository.findDistinctActDt());
+    		
+    	} // For multiple days
+    	  else if(this.shipmentDate.length() > 2 && this.shipmentDate.contains(",")){
+    		
+    		String[] dates = this.shipmentDate.split(",");
+    		
+    		Arrays.asList(dates).stream().forEach(d ->{
+    			this.shipmentDateList.add(this.shipmentMonth + d);
+    		});
+    		
+    	} // For single day
+    	  else if(this.shipmentDate.length() == 2) {
+    		this.shipmentDateList.add(this.shipmentMonth + this.shipmentDate);
+    	}
+    	
+    	Collections.sort(this.shipmentDateList);
+    	
+    	return this.shipmentDateList;
+    }
+    
+    public void saveLogisticsJob(LogisticsJob job) {
+    	logisticsJobRepository.save(job);
+    }
+    
+    public LogisticsJobProblem saveLogisticsJobProblem(LogisticsJobProblem problem) {
+    	LogisticsJobProblem persistProblem = logisticsJobProblemRepository.save(problem);
+    	logisticsJobProblemRepository.flush();
+    	return persistProblem;
+    }
+    
+    @Transactional
+    public void saveLogisticsJobResult(List<LogisticsJobResult> results) {    
+    	logisticsJobResultRepository.saveAll(results);
+    }
+    
+    public List<DhlShipment> retrieveDailyShipment(String shipmentDate){
+    	return dhlShipmentRepository.findByActDt(shipmentDate);
     }
     
     public List<DhlShipment> retrieveDailyShipmentForVan(String shipmentDate){
+    	return dhlShipmentRepository.findByActDtAndCycleOperateAndVehicleTypeIn(shipmentDate, "A", vanTypes);
+    }
+    
+    public List<DhlShipment> retrieveDailyShipmentForBike(String shipmentDate){
+    	return dhlShipmentRepository.findByActDtAndCycleOperateAndVehicleTypeIn(shipmentDate, "A", bikeTypes);
+    }
+    
+    public Map<String, Integer> retrieveAreaRouteScoreMap(){    	
+    	Map<String, Integer> map = new HashMap<String, Integer>();
+    	
+    	List<DhlAreaRouteScore> scoreList = dhlAreaRouteScoreRespository.findAll();
+    	
+    	scoreList.stream().forEach(score ->{
+    		map.put(score.getAreaCode() + "-" + score.getRoute(), score.getScore());
+    	});
+    	
+    	return map;
+    }    
+	
+    public List<String> retrieveShipmentDateAllList(){    	
+    	return dhlShipmentRepository.findDistinctActDt();
+    }
+    
+    public List<DhlShipment> retrieveValidDailyShipmentForVan(String shipmentDate){
     	return dhlShipmentRepository.findByActDtAndIsValidForMopAndVehicleTypeIn(shipmentDate, 1, vanTypes);
     }
 	
-    public List<DhlShipment> retrieveDailyShipmentForBike(String shipmentDate){
+    public List<DhlShipment> retrieveDailyValidShipmentForBike(String shipmentDate){
     	return dhlShipmentRepository.findByActDtAndIsValidForMopAndVehicleTypeIn(shipmentDate, 1, bikeTypes);
     }
     
@@ -124,12 +204,6 @@ public class EvaluationHelper {
     	return dhlRouteRespository.findByRouteInOrderByChromosomeIdAsc(routes);
     }
     
-    public LogisticsJobProblem saveLogisticsJobProblem(LogisticsJobProblem problem) {
-    	LogisticsJobProblem persistProblem = logisticsJobProblemRepository.save(problem);
-    	logisticsJobProblemRepository.flush();
-    	return persistProblem;
-    }
-    
     public void saveLogisticsJobResult(LogisticsJobResult result) {    
     	logisticsJobResultRepository.save(result);
     }
@@ -143,4 +217,20 @@ public class EvaluationHelper {
     		routeUtilizationMapping.put(r.getRoute(), r);
     	});
     }
+    
+    public Integer getCountByActDtAndPudRte(String actDt, String pudRte) {
+    	return dhlShipmentRepository.countByActDtAndPudRte(actDt, pudRte);
+    }
+    
+    public BigDecimal getCalculateAreaPortion(String shipmentDate, String shipmentKeyList) {
+    	return storedProcedureService.calculateAreaPortion(shipmentDate, shipmentKeyList);
+    }    
+
+	public BigDecimal getCalculateAreaShipment(Integer s1, Integer s2, Integer s3) {
+		return storedProcedureService.calculateAreaShipment(s1, s2, s3);
+	}
+	
+	public BigDecimal getCalculateAreaShipment() {
+		return storedProcedureService.calculateAreaShipment();
+	}
 }

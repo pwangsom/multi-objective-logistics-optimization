@@ -27,6 +27,7 @@ import com.kmutt.sit.jpa.entities.LogisticsJob;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
 import com.kmutt.sit.utilities.JavaUtils;
+import com.kmutt.sit.utilities.LogisticsOptimizationHelper;
 
 import lombok.Setter;
 
@@ -40,7 +41,7 @@ public class OptimizationManager {
 	private String jobId;
 	
 	@Autowired
-	private OptimizationHelper optimizationHelper;
+	private LogisticsOptimizationHelper optimizationHelper;
 	
 	@Autowired
 	private LogisticsNsgaIIIHelper helper;

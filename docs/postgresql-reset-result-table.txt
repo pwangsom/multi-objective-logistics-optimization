@@ -1,0 +1,25 @@
+-- If would like to delete all results including existing and generated solutions
+
+truncate table logistics_job;
+
+truncate table logistics_job_problem;
+
+truncate table logistics_job_result;
+
+ALTER SEQUENCE logistics_job_problem_problem_id_seq RESTART WITH 1;
+
+ALTER SEQUENCE logistics_job_result_solution_id_seq RESTART WITH 1;
+
+
+-- If would like to delete all generated solutions
+
+truncate table logistics_job;
+
+delete table logistics_job_result where problem_id in
+ (select problem_id. from logistics_job_problem p where p.solution_type = 'generated');
+
+delete table logistics_job_problem where solution_type = 'generated';
+
+ALTER SEQUENCE logistics_job_problem_problem_id_seq RESTART WITH 51;
+
+ALTER SEQUENCE logistics_job_result_solution_id_seq RESTART WITH 51;
