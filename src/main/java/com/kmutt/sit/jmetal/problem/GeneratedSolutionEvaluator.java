@@ -1,56 +1,62 @@
-package com.kmutt.sit.existing;
+package com.kmutt.sit.jmetal.problem;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.uma.jmetal.solution.IntegerSolution;
 
+import com.kmutt.sit.existing.ExistingSolutionEvaluator;
+import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteAreaPortion;
 import com.kmutt.sit.jpa.entities.DhlRoutePostcodeArea;
 import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
 import com.kmutt.sit.jpa.entities.DhlShipment;
-import com.kmutt.sit.utilities.LogisticsOptimizationHelper;
 
 import lombok.Getter;
+import lombok.Setter;
 
-public class ExistingSolutionEvaluator {	
+public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {	
 
 	private Logger logger = LoggerFactory.getLogger(ExistingSolutionEvaluator.class);
 	
-	@Getter
-	protected Integer noOfCar = 0;
-	@Getter
-	protected Double utilization = 0.0;
-	@Getter
-	protected Double familiarity = 0.0;
+	private List<ChromosomeRepresentation> solutionList;
+	private IntegerSolution solution;
+	private NsgaIIIHelper nsgaIIIHelper;
 	
-	protected LogisticsOptimizationHelper logisticsHelper;
-	protected String shipmentDate;
-	protected List<DhlShipment> shipmentList = new ArrayList<DhlShipment>();
-	@Getter
-	protected List<DhlRoute> vehicleList = new ArrayList<DhlRoute>();
-	
-	public ExistingSolutionEvaluator(LogisticsOptimizationHelper helper, String shipmentDate, List<DhlShipment> shipmentList) {
-		this.logisticsHelper = helper;
-		this.shipmentDate = shipmentDate;
-		this.shipmentList = shipmentList;
+	public GeneratedSolutionEvaluator(IntegerSolution solution, NsgaIIIHelper helper) {
+		super(helper.getLogisticsHelper(), helper.getShipmentDate(), helper.getShipmentList());
+		// TODO Auto-generated constructor stub
+		this.solutionList = new ArrayList<ChromosomeRepresentation>();
+		this.solution = solution;
+		this.nsgaIIIHelper = helper;
 	}
 	
+	@Override
 	public void evaluate() {
-        logger.info("evaluate: start....."); 
+        logger.debug("evaluate: start....."); 
 
-        List<String> routes = shipmentList.stream().map(s -> s.getPudRte()).distinct().collect(Collectors.toList());
-        vehicleList = logisticsHelper.retrieveRoutesByRouteList(routes);
-        noOfCar = routes.size();
+        converToSolutionList();
+        List<Integer> vehicleIntegerList = solutionList.stream().map(item -> item.getChromosomeValue()).distinct().sorted().collect(Collectors.toList());
+		vehicleList = solutionList.stream().map(s -> s.getRoute()).distinct().sorted(Comparator.comparingInt(DhlRoute::getChromosomeId)).collect(Collectors.toList());		
+		noOfCar = vehicleList.size();
+		
+		logger.debug("Integer list: " + vehicleIntegerList.size() + ", Route list " + vehicleList.size());
+		logger.debug(vehicleIntegerList.toString());
+		logger.debug(vehicleList.stream().map(r -> r.getChromosomeId()).collect(Collectors.toList()).toString());
         
+		printProblemSize();
+		
         assessUtilizationFamiliarity();
         
-        logger.info("evaluate: finished..");          
+        logger.debug("evaluate: finished..");          
 	}
 	
+	@Override
 	protected void assessUtilizationFamiliarity() {
         logger.debug("assessUtilizationFamiliarity: start....."); 
                 
@@ -59,21 +65,23 @@ public class ExistingSolutionEvaluator {
 		Double[] frequentHistory = {0.0};
 		Double[] areaShipmentPortion = {0.0};
 		
-		vehicleList.stream().forEach(vid -> {
+		vehicleList.stream().forEach(vid -> {			
 			
 			Double[] utilizationEachVehicle = {0.0};
 			Double[] areaResponsiblityEachVehicle = {0.0};
 			Double[] frequentHistoryEachVehicle = {0.0};
 			Double[] areaShipmentPortionEachVehicle = {0.0};
 			
-			List<DhlShipment> shipmentsOfEachVehicleId = shipmentList.stream().filter(s -> s.getPudRte().equalsIgnoreCase(vid.getRoute())).collect(Collectors.toList());
+			List<ChromosomeRepresentation> findingShipmentIndexOfVehicleId = solutionList.stream().filter(item -> item.chromosomeValue == vid.getChromosomeId()).collect(Collectors.toList());
 			
+			List<DhlShipment> shipmentsOfEachVehicleId = findingShipmentIndexOfVehicleId.stream().map(c -> c.getShipment()).collect(Collectors.toList());
+						
 			Double actualShipments = Double.valueOf(shipmentsOfEachVehicleId.size());
 			DhlRouteUtilization routeUtil = logisticsHelper.getRouteUtilizationMapping().get(vid.getRoute());
 			
 			utilizationEachVehicle[0] = calculateUtilizationOfEachVehicle(actualShipments, routeUtil.getAllAvg().doubleValue());	
-			accumulateUtil[0] += utilizationEachVehicle[0];			
-			
+			accumulateUtil[0] += utilizationEachVehicle[0];
+					
 			shipmentsOfEachVehicleId.stream().forEach(s -> {
 				
 				List<DhlRoutePostcodeArea> ra = logisticsHelper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vid.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
@@ -106,14 +114,46 @@ public class ExistingSolutionEvaluator {
 			logger.debug("");
 		});
 		
-		utilization = accumulateUtil[0] / vehicleList.size();
+		utilization = accumulateUtil[0] / Double.valueOf(vehicleList.size());
 		familiarity = areaResponsiblity[0] + frequentHistory[0] + areaShipmentPortion[0];
 
         logger.debug("assessUtilizationFamiliarity: finished..");     
 	}
 	
-	protected Double calculateUtilizationOfEachVehicle(Double actualShipments, Double utilizedShipments) {
-		return (1-(Math.abs(actualShipments-utilizedShipments)/utilizedShipments))*100;
+	private void converToSolutionList() {
+		for (int i = 0; i < solution.getNumberOfVariables(); i++) {
+			ChromosomeRepresentation slot = new ChromosomeRepresentation();
+			slot.setChromosomeIndex(i);
+			slot.setChromosomeValue(solution.getVariableValue(i));
+			slot.setShipment(nsgaIIIHelper.getShipmentList().get(i));
+			slot.setRoute(nsgaIIIHelper.getRouteList().stream().filter(r -> r.getChromosomeId() == slot.getChromosomeValue()).collect(Collectors.toList()).get(0));
+			
+			solutionList.add(slot);			
+		}
 	}
-
+	
+	private void printProblemSize() {
+		logger.debug("Shipment size: " + solutionList.size() + ", Vehicle size: " + vehicleList.size());
+	}
+	
+	
+	private void printSolutionList() {
+		solutionList.stream().forEach(s -> {
+			
+			String log = String.format("[index: %d, area: %d, id: %d, route: %s]", 
+					s.getChromosomeIndex(), s.getShipment().getAreaCode(), s.getChromosomeValue(), s.getRoute().getRoute());
+			
+			
+			logger.debug(log);
+		});
+	}
+	
+	@Getter
+	@Setter
+	public class ChromosomeRepresentation{
+		private Integer chromosomeIndex;
+		private Integer chromosomeValue;
+		private DhlShipment shipment;
+		private DhlRoute route;
+	}
 }

@@ -1,0 +1,12 @@
+
+Route is not valid (e.g. null, '', not in master data)
+
+Vehicle type is not valid (e.g. Walk in)
+
+Cycle operate is not morning shift
+
+Area code can not be determined
+
+Working day is sunday
+
+Lat and Long are unavailable

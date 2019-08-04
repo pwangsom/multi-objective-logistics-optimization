@@ -30,7 +30,7 @@ public class ExistingSolutionManager {
 	private String jobId;
 	
 	@Autowired
-	private LogisticsOptimizationHelper evaluationHelper;
+	private LogisticsOptimizationHelper logisticsHelper;
 	
 	private List<DhlRoute> vanList;
 	private List<DhlRoute> bikeList;
@@ -46,18 +46,18 @@ public class ExistingSolutionManager {
         
         prepareInformation();
         
-        List<String> shipmentDateList = evaluationHelper.retrieveShipmentDateAllList();
+        List<String> shipmentDateList = logisticsHelper.retrieveShipmentDateAllList();
         
         logger.debug("" + shipmentDateList);
         
         shipmentDateList.stream().forEach(day -> {
         	
-        	if(evaluationHelper.getVehicleTypes().contains("Van")) {
+        	if(logisticsHelper.getVehicleTypes().contains("Van")) {
         		evaluateDailySolutionOfVan(day);
         	}
         	
         	// Allocation shipment for bike
-        	if(evaluationHelper.getVehicleTypes().contains("Bike")) {
+        	if(logisticsHelper.getVehicleTypes().contains("Bike")) {
         		evaluateDailySolutionOfBike(day);        		
         	}
         	
@@ -69,12 +69,12 @@ public class ExistingSolutionManager {
 	private void evaluateDailySolutionOfVan(String shipmentDate) {
         logger.info("evaluateDailySolutionOfVan: start....."); 
 		
-		List<DhlShipment> shipmentList = evaluationHelper.retrieveValidDailyShipmentForVan(shipmentDate)
+		List<DhlShipment> shipmentList = logisticsHelper.retrieveValidDailyShipmentForVan(shipmentDate)
 											.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
 		logger.debug("Date: " + shipmentDate + ", No Of Shipment: " + shipmentList.size());
 		
 		if(!shipmentList.isEmpty()) {
-			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(evaluationHelper, shipmentDate, shipmentList);
+			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(logisticsHelper, shipmentDate, shipmentList);
 			solution.evaluate();
 			
 			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Van", shipmentList, vanList);
@@ -87,12 +87,12 @@ public class ExistingSolutionManager {
 	private void evaluateDailySolutionOfBike(String shipmentDate) {
         logger.info("evaluateDailySolutionOfBike: start....."); 
 		
-		List<DhlShipment> shipmentList = evaluationHelper.retrieveDailyValidShipmentForBike(shipmentDate)
+		List<DhlShipment> shipmentList = logisticsHelper.retrieveDailyValidShipmentForBike(shipmentDate)
 											.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
 		logger.debug("Date: " + shipmentDate + ", No Of Shipment: " + shipmentList.size());
 		
 		if(!shipmentList.isEmpty()) {
-			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(evaluationHelper, shipmentDate, shipmentList);
+			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(logisticsHelper, shipmentDate, shipmentList);
 			solution.evaluate();
 			
 			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Bike", shipmentList, bikeList);
@@ -116,7 +116,7 @@ public class ExistingSolutionManager {
 		problem.setNoOfSolutions(1);
 		problem.setSolutionType("existing");
 		
-		return evaluationHelper.saveLogisticsJobProblem(problem);
+		return logisticsHelper.saveLogisticsJobProblem(problem);
 	}
 	
 	private void saveLogisticsJobResults(Integer problemId, Integer noOfCar, Double utilization, Double familiarity, List<DhlRoute> routes, List<DhlShipment> shipmentList) {
@@ -142,12 +142,12 @@ public class ExistingSolutionManager {
 		result.setNormalizedObjective2(BigDecimal.valueOf(0.0));
 		result.setNormalizedObjective3(BigDecimal.valueOf(0.0));
 		
-		evaluationHelper.saveLogisticsJobResult(result);
+		logisticsHelper.saveLogisticsJobResult(result);
 	}
 	
 	private void prepareInformation() {
-		vanList = evaluationHelper.retrieveRoutesOfVan();
-		bikeList = evaluationHelper.retrieveRoutesOfBike();
+		vanList = logisticsHelper.retrieveRoutesOfVan();
+		bikeList = logisticsHelper.retrieveRoutesOfBike();
 	}
 
 }

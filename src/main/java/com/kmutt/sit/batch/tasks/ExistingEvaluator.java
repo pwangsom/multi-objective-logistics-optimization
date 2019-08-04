@@ -15,7 +15,7 @@ import com.kmutt.sit.existing.ExistingSolutionManager;
 @Component
 public class ExistingEvaluator implements Tasklet {
 	
-	private static Logger logger = LoggerFactory.getLogger(PropertiesReaderDemo.class);
+	private static Logger logger = LoggerFactory.getLogger(ExistingEvaluator.class);
 	
     @Value("${existing.evaluator.enabled}")
     private boolean isEnabled;

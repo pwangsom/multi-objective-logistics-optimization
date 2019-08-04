@@ -2,6 +2,7 @@ package com.kmutt.sit.optimization;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,15 +20,14 @@ import org.uma.jmetal.util.front.imp.ArrayFront;
 import org.uma.jmetal.util.point.util.PointSolution;
 
 import com.kmutt.sit.jmetal.front.ExtendedFrontNormalizer;
-import com.kmutt.sit.jmetal.runner.LogisticsNsgaIIIHelper;
 import com.kmutt.sit.jmetal.runner.LogisticsNsgaIIIIntegerRunner;
+import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 import com.kmutt.sit.jpa.entities.LogisticsJob;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
 import com.kmutt.sit.utilities.JavaUtils;
-import com.kmutt.sit.utilities.LogisticsOptimizationHelper;
 
 import lombok.Setter;
 
@@ -41,10 +41,7 @@ public class OptimizationManager {
 	private String jobId;
 	
 	@Autowired
-	private LogisticsOptimizationHelper optimizationHelper;
-	
-	@Autowired
-	private LogisticsNsgaIIIHelper helper;
+	private NsgaIIIHelper nsgaIIIHelper;
 	
 	private List<DhlRoute> vanList;
 	private List<DhlRoute> bikeList;
@@ -65,22 +62,22 @@ public class OptimizationManager {
         // Insert table logistics_job
         saveLogisticsJob();
         
-        List<String> shipmentDateList = optimizationHelper.retrieveShipmentDateList();
+        List<String> shipmentDateList = nsgaIIIHelper.getLogisticsHelper().retrieveShipmentDateList();
         
         logger.info(shipmentDateList.toString());
                 
         // Operate shipments by date
         shipmentDateList.stream().forEach(date ->{
-        	helper.setShipmentDate(date);        	
+        	nsgaIIIHelper.setShipmentDate(date);        	
 
         	// There are two types of shipments per day; shipment for van and bike.
         	// Allocation shipment for van
-        	if(optimizationHelper.getVehicleTypes().contains("Van")) {
+        	if(nsgaIIIHelper.getLogisticsHelper().getVehicleTypes().contains("Van")) {
             	allocateDailyShipmentForVan(date);
         	}
         	
         	// Allocation shipment for bike
-        	if(optimizationHelper.getVehicleTypes().contains("Bike")) {
+        	if(nsgaIIIHelper.getLogisticsHelper().getVehicleTypes().contains("Bike")) {
             	allocateDailyShipmentForBike(date);        		
         	}
         });
@@ -91,10 +88,14 @@ public class OptimizationManager {
 	private void allocateDailyShipmentForVan(String shipmentDate) {
         logger.info("allocateDailyShipmentForVan: start....."); 
 		
-		List<DhlShipment> shipmentList = optimizationHelper.retrieveDailyShipmentForVan(shipmentDate);		
-		helper.setVehicleType("Van");
-		helper.setShipmentList(shipmentList);
-		helper.setRouteList(vanList);
+		List<DhlShipment> shipmentList = nsgaIIIHelper.getLogisticsHelper().retrieveValidDailyShipmentForVan(shipmentDate)
+				.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
+		
+		nsgaIIIHelper.setVehicleType("Van");
+		nsgaIIIHelper.setShipmentList(shipmentList);
+		nsgaIIIHelper.setRouteList(vanList);
+		nsgaIIIHelper.setFunFile(fileOutputName("van", "fun"));
+		nsgaIIIHelper.setVarFile(fileOutputName("van", "var"));
 
 		runNsgaIII();
 
@@ -103,15 +104,23 @@ public class OptimizationManager {
 	
 	private void allocateDailyShipmentForBike(String shipmentDate) {
         logger.info("allocateDailyShipmentForBike: start....."); 
+
+		List<DhlShipment> shipmentList = nsgaIIIHelper.getLogisticsHelper().retrieveDailyValidShipmentForBike(shipmentDate)
+											.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
 		
-		List<DhlShipment> shipmentList = optimizationHelper.retrieveDailyShipmentForBike(shipmentDate);	
-		helper.setVehicleType("Bike");
-		helper.setShipmentList(shipmentList);
-		helper.setRouteList(bikeList);
+		nsgaIIIHelper.setVehicleType("Bike");
+		nsgaIIIHelper.setShipmentList(shipmentList);
+		nsgaIIIHelper.setRouteList(bikeList);
+		nsgaIIIHelper.setFunFile(fileOutputName("bike", "fun"));
+		nsgaIIIHelper.setVarFile(fileOutputName("bike", "var"));
 		
 		runNsgaIII();
 
         logger.info("allocateDailyShipmentForBike: finished..");  
+	}
+	
+	private String fileOutputName(String vehicleType, String fileType) {
+		return "./files/output/" + nsgaIIIHelper.getJobId() + "-" + nsgaIIIHelper.getShipmentDate() + "-" + fileType + ".csv";
 	}
 	
 	private void runNsgaIII() {
@@ -121,16 +130,16 @@ public class OptimizationManager {
         List<IntegerSolution> solutions = new ArrayList<IntegerSolution>();
 		
         // Allocate each run
-        for(int i = 1; i <= helper.getMaxRun(); i++) {
+        for(int i = 1; i <= nsgaIIIHelper.getMaxRun(); i++) {
         	
         	String runInfo = String.format("[Job ID: %s, Shipment Date: %s, Vehicle: %s, Run No: %d, Max Run: %d]", 
-        					jobId, helper.getShipmentDate(), helper.getVehicleType(), i, helper.getMaxRun());
+        					jobId, nsgaIIIHelper.getShipmentDate(), nsgaIIIHelper.getVehicleType(), i, nsgaIIIHelper.getMaxRun());
 
-            logger.debug(runInfo + ": Starting....");
+            logger.info(runInfo + ": Starting....");
         	
-            helper.setCurrentRun(i);
+            nsgaIIIHelper.setCurrentRun(i);
         	
-    		LogisticsNsgaIIIIntegerRunner runner = new LogisticsNsgaIIIIntegerRunner(helper);
+    		LogisticsNsgaIIIIntegerRunner runner = new LogisticsNsgaIIIIntegerRunner(nsgaIIIHelper);
     		runner.setRunnerParameter();
     		runner.execute();
     		
@@ -177,33 +186,33 @@ public class OptimizationManager {
 			results.add(result);
 		});
 		
-		optimizationHelper.saveLogisticsJobResult(results);
+		nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobResult(results);
 	}
 	
 	private LogisticsJobProblem saveLogisticsJobProblem(Integer noOfSolutions) {
 		LogisticsJobProblem problem = new LogisticsJobProblem();
 		problem.setJobId(jobId);
-		problem.setShipmentDate(helper.getShipmentDate());
-		problem.setVehicleType(helper.getVehicleType());
+		problem.setShipmentDate(nsgaIIIHelper.getShipmentDate());
+		problem.setVehicleType(nsgaIIIHelper.getVehicleType());
 		
-		String shipmentList = helper.getShipmentList().stream().map(s -> s.getShipmentKey()).collect(Collectors.toList()).toString();
-		String routeList = helper.getRouteList().stream().map(r -> r.getChromosomeId()).collect(Collectors.toList()).toString();
+		String shipmentList = nsgaIIIHelper.getShipmentList().stream().map(s -> s.getShipmentKey()).collect(Collectors.toList()).toString();
+		String routeList = nsgaIIIHelper.getRouteList().stream().map(r -> r.getChromosomeId()).collect(Collectors.toList()).toString();
 		
 		problem.setShipmentList(JavaUtils.removeStringOfList(shipmentList));
 		problem.setRouteList(JavaUtils.removeStringOfList(routeList));
 		problem.setNoOfSolutions(noOfSolutions);
 		
-		return optimizationHelper.saveLogisticsJobProblem(problem);
+		return nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobProblem(problem);
 	}
 	
 	private void saveLogisticsJob() {
 		LogisticsJob job = new LogisticsJob();
-		job.setJobId(helper.getJobId());
-		job.setVehicleConfig(optimizationHelper.getVehicleTypes());
-		job.setMaxRun(helper.getMaxRun());
-		job.setMaxIteration(helper.getMaxIteration());
+		job.setJobId(nsgaIIIHelper.getJobId());
+		job.setVehicleConfig(nsgaIIIHelper.getLogisticsHelper().getVehicleTypes());
+		job.setMaxRun(nsgaIIIHelper.getMaxRun());
+		job.setMaxIteration(nsgaIIIHelper.getMaxIteration());
 		
-		optimizationHelper.saveLogisticsJob(job);
+		nsgaIIIHelper.getLogisticsHelper().saveLogisticsJob(job);
 	}
 	
 	private String getSolutionString(IntegerSolution solution) {
@@ -218,21 +227,21 @@ public class OptimizationManager {
 	}
 		
 	private void previewLogisticsOperate() {		
-		logger.debug("Job ID: " + helper.getJobId());
-		logger.debug("Shipment Date: " + helper.getShipmentDate());
-		logger.debug("Vehicle Type: " + helper.getVehicleType());
-		logger.debug("No. of Shipments: " + helper.getShipmentList().size());
-		logger.debug("No. of Available Routes: " + helper.getRouteList().size());
+		logger.debug("Job ID: " + nsgaIIIHelper.getJobId());
+		logger.debug("Shipment Date: " + nsgaIIIHelper.getShipmentDate());
+		logger.debug("Vehicle Type: " + nsgaIIIHelper.getVehicleType());
+		logger.debug("No. of Shipments: " + nsgaIIIHelper.getShipmentList().size());
+		logger.debug("No. of Available Routes: " + nsgaIIIHelper.getRouteList().size());
 	}
 	
 	private void prepareInformation() {		
 
-		scoreMapping = optimizationHelper.retrieveAreaRouteScoreMap();
-		helper.setJobId(jobId);
-		helper.setScoreMapping(scoreMapping);
+		scoreMapping = nsgaIIIHelper.getLogisticsHelper().retrieveAreaRouteScoreMap();
+		nsgaIIIHelper.setJobId(jobId);
+		nsgaIIIHelper.setScoreMapping(scoreMapping);
 		
-		vanList = optimizationHelper.retrieveRoutesOfVan();
-		bikeList = optimizationHelper.retrieveRoutesOfBike();
+		vanList = nsgaIIIHelper.getLogisticsHelper().retrieveRoutesOfVan();
+		bikeList = nsgaIIIHelper.getLogisticsHelper().retrieveRoutesOfBike();
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("No. of Score Mapping: " + scoreMapping.size()); 

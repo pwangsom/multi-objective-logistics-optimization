@@ -3,18 +3,23 @@ package com.kmutt.sit.jmetal.runner;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlShipment;
+import com.kmutt.sit.utilities.LogisticsOptimizationHelper;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Service
-public class LogisticsNsgaIIIHelper {
+public class NsgaIIIHelper {
+	
+	@Autowired
+	private LogisticsOptimizationHelper logisticsHelper;
 	
 	@Setter
 	private String jobId;
@@ -30,6 +35,10 @@ public class LogisticsNsgaIIIHelper {
     private Map<String, Integer> scoreMapping;
     @Setter
     private Integer currentRun;
+    @Setter
+    private String funFile;
+    @Setter
+    private String varFile;
 	
     @Value("${area.notfound.score}")
     private Integer notfoundScore;

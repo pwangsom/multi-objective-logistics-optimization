@@ -1,16 +1,14 @@
 package com.kmutt.sit.jmetal.problem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uma.jmetal.solution.IntegerSolution;
 
-import com.kmutt.sit.jmetal.runner.LogisticsNsgaIIIHelper;
+import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 
@@ -22,9 +20,8 @@ public class LogisticsPlanEvaluator {
 
 	private Logger logger = LoggerFactory.getLogger(LogisticsPlanEvaluator.class);
 	
-	private List<IntegerChromosome> solutionList;
+	private List<ChromosomeRepresentation> solutionList;
 	private List<Integer> vehicleList;
-	private Map<Integer, VehicleShipment> vehicleShipmentsMapping;
 	
 	@Getter
 	private Integer noOfCar = 0;
@@ -34,20 +31,18 @@ public class LogisticsPlanEvaluator {
 	private Integer familiarity = 0;
 	
 	private IntegerSolution solution;
-	private LogisticsNsgaIIIHelper helper;
+	private NsgaIIIHelper helper;
 	
 	
-	public LogisticsPlanEvaluator(IntegerSolution solution, LogisticsNsgaIIIHelper helper) {
-		this.solutionList = new ArrayList<IntegerChromosome>();
+	public LogisticsPlanEvaluator(IntegerSolution solution, NsgaIIIHelper helper) {
+		this.solutionList = new ArrayList<ChromosomeRepresentation>();
 		this.vehicleList = new ArrayList<Integer>();
-		this.vehicleShipmentsMapping = new HashMap<Integer, VehicleShipment>();
 		this.solution = solution;
 		this.helper = helper;
 	}
 	
 	public void evaluate() {
 		converToSolutionList();
-		determineNoOfCar();
 		mapShipmentsToVehicle();
 		
 		if(logger.isDebugEnabled()) printSolutionList();
@@ -69,7 +64,7 @@ public class LogisticsPlanEvaluator {
 			// Finding route coresponding with chromosome id
 			DhlRoute route = helper.getRouteList().stream().filter(r -> r.getChromosomeId() == vid).collect(Collectors.toList()).get(0);
 			
-			List<IntegerChromosome> findingIndexOfVehicleId = solutionList.stream().filter(item -> item.chromosomeValue == vid).collect(Collectors.toList());
+			List<ChromosomeRepresentation> findingIndexOfVehicleId = solutionList.stream().filter(item -> item.chromosomeValue == vid).collect(Collectors.toList());
 			
 			List<DhlShipment> shipmentOfEachVehicleIdList = new ArrayList<DhlShipment>();
 			
@@ -79,14 +74,6 @@ public class LogisticsPlanEvaluator {
 
 			eachVehicleUtil[0] = determineUtilizationOfEachVehicle(route, shipmentOfEachVehicleIdList.size());
 			eachVehicleScore[0] = determineEffortScoreOfEachVehicle(route, shipmentOfEachVehicleIdList);
-			
-			VehicleShipment vehicleShipment = new VehicleShipment();
-			vehicleShipment.setRoute(route);
-			vehicleShipment.setShipmentsInVehicle(shipmentOfEachVehicleIdList);
-			vehicleShipment.setUtilizationOfVehicle(eachVehicleUtil[0]);
-			vehicleShipment.setFamiliarityOfVehicle(eachVehicleScore[0]);
-			
-			vehicleShipmentsMapping.put(vid, vehicleShipment);
 			
 			util[0] = util[0] + eachVehicleUtil[0];
 			score[0] = score[0] + eachVehicleScore[0];
@@ -125,22 +112,19 @@ public class LogisticsPlanEvaluator {
 		return score[0];
 	}
 	
-	private void determineNoOfCar() {
-		noOfCar = vehicleList.size();
-	}
-	
 	private void converToSolutionList() {
 		for (int i = 0; i < solution.getNumberOfVariables(); i++) {
-			IntegerChromosome item = new IntegerChromosome();
-			item.setChromosomeIndex(i);
-			item.setChromosomeValue(solution.getVariableValue(i));
-			item.setShipment(helper.getShipmentList().get(i));
-			item.setRoute(helper.getRouteList().stream().filter(r -> r.getChromosomeId() == item.getChromosomeValue()).collect(Collectors.toList()).get(0));
+			ChromosomeRepresentation slot = new ChromosomeRepresentation();
+			slot.setChromosomeIndex(i);
+			slot.setChromosomeValue(solution.getVariableValue(i));
+			slot.setShipment(helper.getShipmentList().get(i));
+			slot.setRoute(helper.getRouteList().stream().filter(r -> r.getChromosomeId() == slot.getChromosomeValue()).collect(Collectors.toList()).get(0));
 			
-			solutionList.add(item);			
+			solutionList.add(slot);			
 		}
 		
 		vehicleList = solutionList.stream().map(item -> item.getChromosomeValue()).distinct().sorted().collect(Collectors.toList());
+		noOfCar = vehicleList.size();
 	}
 	
 	private void printSolutionList() {
@@ -156,16 +140,7 @@ public class LogisticsPlanEvaluator {
 	
 	@Getter
 	@Setter
-	public class VehicleShipment{
-		private DhlRoute route = new DhlRoute();
-		private List<DhlShipment> shipmentsInVehicle = new ArrayList<DhlShipment>();
-		private Integer utilizationOfVehicle = 0;
-		private Integer familiarityOfVehicle = 0;
-	}
-	
-	@Getter
-	@Setter
-	public class IntegerChromosome{
+	public class ChromosomeRepresentation{
 		private Integer chromosomeIndex;
 		private Integer chromosomeValue;
 		private DhlShipment shipment;

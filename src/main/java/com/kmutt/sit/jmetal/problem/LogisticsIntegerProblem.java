@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.uma.jmetal.problem.impl.AbstractIntegerProblem;
 import org.uma.jmetal.solution.IntegerSolution;
 
-import com.kmutt.sit.jmetal.runner.LogisticsNsgaIIIHelper;
+import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
 public class LogisticsIntegerProblem extends AbstractIntegerProblem {
 
@@ -18,11 +18,11 @@ public class LogisticsIntegerProblem extends AbstractIntegerProblem {
 	private static final long serialVersionUID = 1L;
 	
 	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerProblem.class);
-	private LogisticsNsgaIIIHelper helper;
+	private NsgaIIIHelper helper;
 	
 	final private int NO_OBJECTIVES = 3;
 	
-	public LogisticsIntegerProblem(LogisticsNsgaIIIHelper helper) {
+	public LogisticsIntegerProblem(NsgaIIIHelper helper) {
 		
 		setNumberOfObjectives(NO_OBJECTIVES);
 		setName("LogisticsIntegerProblem");
@@ -55,14 +55,14 @@ public class LogisticsIntegerProblem extends AbstractIntegerProblem {
 		logger.debug("");
 		logger.debug("Start: Evaluate");
 		
-		LogisticsPlanEvaluator evaluator = new LogisticsPlanEvaluator(solution, helper);
+		GeneratedSolutionEvaluator evaluator = new GeneratedSolutionEvaluator(solution, helper);
 		evaluator.evaluate();
 		
 		solution.setObjective(0, evaluator.getNoOfCar());
-		solution.setObjective(1, evaluator.getUtilization());
-		solution.setObjective(2, evaluator.getFamiliarity());
+		solution.setObjective(1, evaluator.getUtilization() * -1);
+		solution.setObjective(2, evaluator.getFamiliarity() * -1);
 		
-		logger.debug(String.format("[No.Of Cars: %d, Utilization: %d, Fammilarity: %d]", 
+		logger.debug(String.format("[No.Of Cars: %d, Utilization: %.4f, Fammilarity: %.4f]", 
 				evaluator.getNoOfCar(), evaluator.getUtilization(), evaluator.getFamiliarity()));
 		
 		logger.debug("");

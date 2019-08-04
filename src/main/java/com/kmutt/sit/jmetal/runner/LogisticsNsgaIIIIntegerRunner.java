@@ -38,12 +38,12 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	private int maxIteration = 300;
 	private String referenceParetoFront = "src/main/resources/NBI_3_12.pf";
 	
-	private LogisticsNsgaIIIHelper helper;
+	private NsgaIIIHelper helper;
 	
 	@Getter
 	private List<IntegerSolution> solutions;
 	
-	public LogisticsNsgaIIIIntegerRunner(LogisticsNsgaIIIHelper helper) {
+	public LogisticsNsgaIIIIntegerRunner(NsgaIIIHelper helper) {
 		this.helper = helper;
 	}
 	
@@ -79,14 +79,14 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	    long computingTime = algorithmRunner.getComputingTime();
 	    
 	    new SolutionListOutput(solutions)
-	        .setSeparator("\t")
-	        .setVarFileOutputContext(new DefaultFileOutputContext("VAR.tsv"))
-	        .setFunFileOutputContext(new DefaultFileOutputContext("FUN.tsv"))
+	        .setSeparator(",")
+	        .setVarFileOutputContext(new DefaultFileOutputContext(helper.getVarFile()))
+	        .setFunFileOutputContext(new DefaultFileOutputContext(helper.getFunFile()))
 	        .print() ;
 
 		logger.info("Total execution time: " + computingTime + "ms");
-		logger.info("Objectives values have been written to file FUN.tsv");
-		logger.info("Variables values have been written to file VAR.tsv");	
+		logger.info("Objectives values have been written to file " + helper.getFunFile());
+		logger.info("Variables values have been written to file " + helper.getVarFile());	
 		
 	}
 

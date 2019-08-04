@@ -40,7 +40,7 @@ public class BatchConfiguration {
         return jobs.get("processJob")
                 .incrementer(new RunIdIncrementer())
                 .start(evaluateExistingSolution())
-                // .next(optimizeShipmentLogistics())
+                .next(optimizeShipmentLogistics())
                 .build();
     }
     
