@@ -19,6 +19,7 @@ import org.uma.jmetal.util.AlgorithmRunner;
 import org.uma.jmetal.util.fileoutput.SolutionListOutput;
 import org.uma.jmetal.util.fileoutput.impl.DefaultFileOutputContext;
 
+import com.kmutt.sit.jmetal.algorithm.GeneralNsgaIIIIntegerSolutionBuilder;
 import com.kmutt.sit.jmetal.problem.LogisticsIntegerProblem;
 import com.kmutt.sit.utilities.JavaUtils;
 
@@ -36,6 +37,7 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	private AlgorithmRunner algorithmRunner;
 	
 	private int maxIteration = 300;
+	@SuppressWarnings("unused")
 	private String referenceParetoFront = "src/main/resources/NBI_3_12.pf";
 	
 	private NsgaIIIHelper helper;
@@ -66,12 +68,15 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	
 	public void execute() {
 		
-	    algorithm = new NSGAIIIBuilder<>(problem)
-	            .setCrossoverOperator(crossover)
-	            .setMutationOperator(mutation)
-	            .setSelectionOperator(selection)
-	            .setMaxIterations(this.maxIteration)
-	            .build() ;
+		/*
+		 * algorithm = new NSGAIIIBuilder<>(problem) .setCrossoverOperator(crossover)
+		 * .setMutationOperator(mutation) .setSelectionOperator(selection)
+		 * .setMaxIterations(this.maxIteration) .build() ;
+		 */
+	    
+		 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration)
+					.build();
+	    
 
 	    algorithmRunner = new AlgorithmRunner.Executor(algorithm).execute();
 	    

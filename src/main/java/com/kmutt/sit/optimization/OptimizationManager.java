@@ -120,7 +120,7 @@ public class OptimizationManager {
 	}
 	
 	private String fileOutputName(String vehicleType, String fileType) {
-		return "./files/output/" + nsgaIIIHelper.getJobId() + "-" + nsgaIIIHelper.getShipmentDate() + "-" + fileType + ".csv";
+		return "./files/output/" + nsgaIIIHelper.getJobId() + "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + fileType + ".csv";
 	}
 	
 	private void runNsgaIII() {
@@ -201,6 +201,7 @@ public class OptimizationManager {
 		problem.setShipmentList(JavaUtils.removeStringOfList(shipmentList));
 		problem.setRouteList(JavaUtils.removeStringOfList(routeList));
 		problem.setNoOfSolutions(noOfSolutions);
+		problem.setSolutionType("generated");
 		
 		return nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobProblem(problem);
 	}
