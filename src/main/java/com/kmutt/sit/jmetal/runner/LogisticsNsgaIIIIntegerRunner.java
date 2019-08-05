@@ -81,12 +81,14 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	    
 	    solutions = algorithm.getResult();
 	    long computingTime = algorithmRunner.getComputingTime();
-	    
-	    if(helper.getLogisticsHelper().isOutputFileEnabled()) printOutputFiles();
 
 		logger.info("Total execution time: " + computingTime + "ms");
-		logger.info("Objectives values have been written to file " + helper.getFunFile());
-		logger.info("Variables values have been written to file " + helper.getVarFile());	
+	    
+	    if(helper.getLogisticsHelper().isOutputFileEnabled()) {
+	    	printOutputFiles();
+			logger.info("Objectives values have been written to file " + helper.getFunFile());
+			logger.info("Variables values have been written to file " + helper.getVarFile());
+	    }	
 		
 	}
 	
