@@ -34,6 +34,11 @@ bootJar {
 repositories {
     mavenCentral()
 	mavenLocal()
+	
+	maven {
+		url 'C:/Users/pwang/.m2/repository'
+	}
+	
 }
 
 sourceCompatibility = 1.8
@@ -45,7 +50,17 @@ dependencies {
 	//runtimeOnly('org.springframework.boot:spring-boot-devtools')
 	runtimeOnly('org.postgresql:postgresql')
 	compileOnly('org.projectlombok:lombok:1.18.8')
-	compile('org.uma.jmetal:jmetal:5.6-SNAPSHOT')
+	annotationProcessor('org.projectlombok:lombok:1.18.8')
+	// implementation('org.uma.jmetal:jmetal:5.9')
+	// compile('org.uma.jmetal:jmetal:5.6-SNAPSHOT')
+	// compile('org.uma.jmetal:jmetal:5.6')
+	
+	compile (
+		[group: 'org.uma.jmetal', name: 'jmetal-core', version: '5.6-SNAPSHOT'],
+		[group: 'org.uma.jmetal', name: 'jmetal-algorithm', version: '5.6-SNAPSHOT'],
+		[group: 'org.uma.jmetal', name: 'jmetal-exec', version: '5.6-SNAPSHOT'],
+		[group: 'org.uma.jmetal', name: 'jmetal-problem', version: '5.6-SNAPSHOT']
+	)
 	
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	
