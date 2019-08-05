@@ -62,7 +62,7 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 		Double[] accumulateUtil = {0.0};
 		Double[] areaResponsiblity = {0.0};
 		Double[] frequentHistory = {0.0};
-		Double[] areaShipmentPortion = {0.0};
+		// Double[] areaShipmentPortion = {0.0};
 		
 		vehicleList.stream().forEach(vid -> {			
 			
@@ -75,16 +75,16 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 			Double[] utilizationEachVehicle = {0.0};
 			Double[] areaResponsiblityEachVehicle = {0.0};
 			Double[] frequentHistoryEachVehicle = {0.0};
-			Double[] areaShipmentPortionEachVehicle = {0.0};
+			// Double[] areaShipmentPortionEachVehicle = {0.0};
 			
 			utilizationEachVehicle[0] = results[0];
 			areaResponsiblityEachVehicle[0] = results[1];
 			frequentHistoryEachVehicle[0] = results[2];
-			areaShipmentPortionEachVehicle[0] = results[3];
+			// areaShipmentPortionEachVehicle[0] = results[3];
 			
 			areaResponsiblity[0] += areaResponsiblityEachVehicle[0];
 			frequentHistory[0] += frequentHistoryEachVehicle[0];
-			areaShipmentPortion[0] += areaShipmentPortionEachVehicle[0];		
+			// areaShipmentPortion[0] += areaShipmentPortionEachVehicle[0];		
 			
 		});
 		
