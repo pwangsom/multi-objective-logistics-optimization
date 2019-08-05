@@ -49,3 +49,5 @@ logs
 *.tsv
 *.bin
 *.lock
+jMetal.log.*
+*.log.*
