@@ -77,8 +77,11 @@ public class ExistingSolutionManager {
 			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(logisticsHelper, shipmentDate, shipmentList);
 			solution.evaluate();
 			
-			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Van", shipmentList, vanList);
-			saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), vanList, shipmentList);
+			// Insert table logistics_job_problem        
+	        if(logisticsHelper.isOutputDatabaseEnabled()) {
+				LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Van", shipmentList, vanList);
+				saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), vanList, shipmentList);
+	        }			
 		}
 
         logger.info("evaluateDailySolutionOfVan: finished..");  		
@@ -95,8 +98,11 @@ public class ExistingSolutionManager {
 			ExistingSolutionEvaluator solution = new ExistingSolutionEvaluator(logisticsHelper, shipmentDate, shipmentList);
 			solution.evaluate();
 			
-			LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Bike", shipmentList, bikeList);
-			saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), bikeList, shipmentList);
+			// Insert table logistics_job_problem        
+	        if(logisticsHelper.isOutputDatabaseEnabled()) {
+	        	LogisticsJobProblem problem = saveLogisticsJobProblem(shipmentDate, "Bike", shipmentList, bikeList);
+				saveLogisticsJobResults(problem.getProblemId(), solution.getNoOfCar(), solution.getUtilization(), solution.getFamiliarity(), bikeList, shipmentList);
+	        }
 		}
 
         logger.info("evaluateDailySolutionOfBike: finished..");  		

@@ -11,8 +11,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +26,6 @@ import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
 import com.kmutt.sit.jpa.entities.services.StoredProcedureService;
 import com.kmutt.sit.jpa.respositories.DhlAreaRouteScoreRespository;
-import com.kmutt.sit.jpa.respositories.DhlDailyShipmentRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteAreaPortionRepository;
 import com.kmutt.sit.jpa.respositories.DhlRoutePostcodeAreaRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteRespository;
@@ -42,8 +39,6 @@ import lombok.Getter;
 
 @Service
 public class LogisticsOptimizationHelper {
-
-	private static Logger logger = LoggerFactory.getLogger(LogisticsOptimizationHelper.class);
     
     @Autowired
     private DhlShipmentRepository dhlShipmentRepository;    
@@ -57,8 +52,6 @@ public class LogisticsOptimizationHelper {
     private DhlRouteAreaPortionRepository dhlRouteAreaPortionRepository;      
     @Autowired
     private DhlRouteUtilizationRepository dhlRouteUtilizationRepository;     
-    @Autowired
-    private DhlDailyShipmentRespository dhlDailyShipmentRespository;    
     @Autowired
     private LogisticsJobRepository logisticsJobRepository;    
     @Autowired
@@ -83,6 +76,14 @@ public class LogisticsOptimizationHelper {
     
     @Value("${vehicle.bike}")
     private String bikeType;
+    
+    @Getter
+    @Value("${output.database.enabled}")
+    private boolean isOutputDatabaseEnabled; 
+    
+    @Getter
+    @Value("${output.file.enabled}")
+    private boolean isOutputFileEnabled;       
     
     @Getter
     private List<String> vehicleTypeList;

@@ -5,7 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uma.jmetal.algorithm.Algorithm;
-import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.operator.CrossoverOperator;
 import org.uma.jmetal.operator.MutationOperator;
 import org.uma.jmetal.operator.SelectionOperator;
@@ -83,15 +82,21 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	    solutions = algorithm.getResult();
 	    long computingTime = algorithmRunner.getComputingTime();
 	    
+	    if(helper.getLogisticsHelper().isOutputFileEnabled()) printOutputFiles();
+
+		logger.info("Total execution time: " + computingTime + "ms");
+		logger.info("Objectives values have been written to file " + helper.getFunFile());
+		logger.info("Variables values have been written to file " + helper.getVarFile());	
+		
+	}
+	
+	private void printOutputFiles() {
+	    
 	    new SolutionListOutput(solutions)
 	        .setSeparator(",")
 	        .setVarFileOutputContext(new DefaultFileOutputContext(helper.getVarFile()))
 	        .setFunFileOutputContext(new DefaultFileOutputContext(helper.getFunFile()))
 	        .print() ;
-
-		logger.info("Total execution time: " + computingTime + "ms");
-		logger.info("Objectives values have been written to file " + helper.getFunFile());
-		logger.info("Variables values have been written to file " + helper.getVarFile());	
 		
 	}
 

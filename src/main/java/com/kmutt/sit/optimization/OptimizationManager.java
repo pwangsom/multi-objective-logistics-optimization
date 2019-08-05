@@ -60,7 +60,9 @@ public class OptimizationManager {
         prepareInformation();
         
         // Insert table logistics_job
-        saveLogisticsJob();
+        if(nsgaIIIHelper.getLogisticsHelper().isOutputDatabaseEnabled()) {    
+            saveLogisticsJob();
+        }        
         
         List<String> shipmentDateList = nsgaIIIHelper.getLogisticsHelper().retrieveShipmentDateList();
         
@@ -154,10 +156,11 @@ public class OptimizationManager {
         @SuppressWarnings("unchecked")
 		List<PointSolution> normalizedParetoSet = (List<PointSolution>) frontNormalizer.normalize(paretoSet);
 		
-		// Insert table logistics_job_problem
-        LogisticsJobProblem problem = saveLogisticsJobProblem(paretoSet.size());
-        
-        saveLogisticsJobResults(problem.getProblemId(), paretoSet, normalizedParetoSet) ;
+		// Insert table logistics_job_problem        
+        if(nsgaIIIHelper.getLogisticsHelper().isOutputDatabaseEnabled()) {
+            LogisticsJobProblem problem = saveLogisticsJobProblem(paretoSet.size());            
+            saveLogisticsJobResults(problem.getProblemId(), paretoSet, normalizedParetoSet);        	
+        }
 	}
 	
 	private void saveLogisticsJobResults(Integer problemId, List<IntegerSolution> paretoSet, List<PointSolution> normalizedParetoSet) {
