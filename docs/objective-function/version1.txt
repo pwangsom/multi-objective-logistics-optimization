@@ -1,0 +1,17 @@
+1.	no. of vehicles
+
+2.	vehicle utilization
+	
+	summation of each vehicle utilization / no. of vehicles
+	
+	each vehicle utilization = 1-(|actual shipments - average shipments|/average shipments))* 100
+	
+3.	route familiarity
+
+	summation of each route familiariy (erf)
+	
+	erf = area responsibility (ar) + history delivery (hd) + area compactness (ac)
+	
+	ar = summation of ar of each shipment, ar = 1 if that shipment is in area responsibility, otherwise 0
+	hd = summation of hd of each shipment, ar = number of shipments of area containing considered shipment / number of shipment of area having the most shipments
+	ac = 1 - (area of actual shipments / area of all shipments)
