@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import com.kmutt.sit.optimization.OptimizationManager;
 
 @Service
-public class LogisticsOptimizer implements Tasklet {
+public class LogisticsOptimization implements Tasklet {
 
-	private static Logger logger = LoggerFactory.getLogger(LogisticsOptimizer.class);
+	private static Logger logger = LoggerFactory.getLogger(LogisticsOptimization.class);
 	
 	@Autowired
 	private OptimizationManager optimizationManager;

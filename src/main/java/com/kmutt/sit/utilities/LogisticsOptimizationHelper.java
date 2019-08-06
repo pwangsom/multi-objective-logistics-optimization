@@ -61,6 +61,10 @@ public class LogisticsOptimizationHelper {
     @Autowired
     private StoredProcedureService storedProcedureService;
 
+    @Getter
+    @Value("${app.output.path}")
+    private String outputPath;
+    
     @Value("${shipment.month}")
     private String shipmentMonth;
     

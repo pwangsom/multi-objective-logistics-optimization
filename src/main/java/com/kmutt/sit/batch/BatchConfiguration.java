@@ -12,8 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.kmutt.sit.batch.tasks.ExistingEvaluator;
-import com.kmutt.sit.batch.tasks.LogisticsOptimizer;
+import com.kmutt.sit.batch.tasks.EnvironmentCreation;
+import com.kmutt.sit.batch.tasks.ExistingEvaluation;
+import com.kmutt.sit.batch.tasks.LogisticsOptimization;
 
 @Configuration
 @EnableBatchProcessing
@@ -28,10 +29,13 @@ public class BatchConfiguration {
     private StepBuilderFactory steps;
     
     @Autowired
-    private LogisticsOptimizer logisticsOptimizer;
+    private EnvironmentCreation environmentCreation;
     
     @Autowired
-    private ExistingEvaluator existingEvaluator;
+    private LogisticsOptimization logisticsOptimization;
+    
+    @Autowired
+    private ExistingEvaluation existingEvaluation;
      
     @Bean
     public Job processJob(){
@@ -39,22 +43,30 @@ public class BatchConfiguration {
     	
         return jobs.get("processJob")
                 .incrementer(new RunIdIncrementer())
-                .start(evaluateExistingSolution())
+                .start(createApplicationEnvironment())
+                .next(evaluateExistingSolution())
                 .next(optimizeShipmentLogistics())
                 .build();
     }
     
     @Bean
+    public Step createApplicationEnvironment(){    	
+        return steps.get("createApplicationEnvironment")
+                .tasklet(environmentCreation)
+                .build();
+    }    
+    
+    @Bean
     public Step evaluateExistingSolution(){    	
         return steps.get("evaluateExistingSolution")
-                .tasklet(existingEvaluator)
+                .tasklet(existingEvaluation)
                 .build();
     }    
 
     @Bean
     public Step optimizeShipmentLogistics(){    	
         return steps.get("optimizeShipmentLogistics")
-                .tasklet(logisticsOptimizer)
+                .tasklet(logisticsOptimization)
                 .build();
     }
 }

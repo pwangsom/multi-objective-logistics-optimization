@@ -13,15 +13,15 @@ import org.springframework.stereotype.Component;
 import com.kmutt.sit.existing.ExistingSolutionManager;
 
 @Component
-public class ExistingEvaluator implements Tasklet {
+public class ExistingEvaluation implements Tasklet {
 	
-	private static Logger logger = LoggerFactory.getLogger(ExistingEvaluator.class);
+	private static Logger logger = LoggerFactory.getLogger(ExistingEvaluation.class);
 	
     @Value("${existing.evaluator.enabled}")
     private boolean isEnabled;
     
     @Autowired
-    private ExistingSolutionManager evaluationManager;
+    private ExistingSolutionManager evaluationSolutionManager;
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -33,8 +33,8 @@ public class ExistingEvaluator implements Tasklet {
 
         logger.info("Enable: " + isEnabled);
         if(isEnabled) {
-        	evaluationManager.setJobId(jobId);
-        	evaluationManager.evaluate();
+        	evaluationSolutionManager.setJobId(jobId);
+        	evaluationSolutionManager.evaluate();
         }
         
         logger.info("");

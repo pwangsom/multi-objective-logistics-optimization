@@ -122,7 +122,8 @@ public class OptimizationManager {
 	}
 	
 	private String fileOutputName(String vehicleType, String fileType) {
-		return "./files/output/" + nsgaIIIHelper.getJobId() + "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + fileType + ".csv";
+		return nsgaIIIHelper.getLogisticsHelper().getOutputPath() + nsgaIIIHelper.getJobId() 
+				+ "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + fileType + ".csv";
 	}
 	
 	private void runNsgaIII() {
