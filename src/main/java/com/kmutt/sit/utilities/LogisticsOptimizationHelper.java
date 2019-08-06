@@ -24,6 +24,7 @@ import com.kmutt.sit.jpa.entities.DhlShipment;
 import com.kmutt.sit.jpa.entities.LogisticsJob;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
+import com.kmutt.sit.jpa.entities.LogisticsJobResultDetail;
 import com.kmutt.sit.jpa.entities.services.StoredProcedureService;
 import com.kmutt.sit.jpa.respositories.DhlAreaRouteScoreRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteAreaPortionRepository;
@@ -33,6 +34,7 @@ import com.kmutt.sit.jpa.respositories.DhlRouteUtilizationRepository;
 import com.kmutt.sit.jpa.respositories.DhlShipmentRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobProblemRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobRepository;
+import com.kmutt.sit.jpa.respositories.LogisticsJobResultDetailRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobResultRepository;
 
 import lombok.Getter;
@@ -57,7 +59,9 @@ public class LogisticsOptimizationHelper {
     @Autowired
     private LogisticsJobProblemRepository logisticsJobProblemRepository;    
     @Autowired
-    private LogisticsJobResultRepository logisticsJobResultRepository;
+    private LogisticsJobResultRepository logisticsJobResultRepository; 
+    @Autowired
+    private LogisticsJobResultDetailRepository logisticsJobResultDetailRepository;
     @Autowired
     private StoredProcedureService storedProcedureService;
 
@@ -159,6 +163,11 @@ public class LogisticsOptimizationHelper {
     @Transactional
     public void saveLogisticsJobResult(List<LogisticsJobResult> results) {    
     	logisticsJobResultRepository.saveAll(results);
+    }
+    
+    @Transactional
+    public void saveLogisticsJobResultDetail(List<LogisticsJobResultDetail> resultDetail) {    
+    	logisticsJobResultDetailRepository.saveAll(resultDetail);
     }
     
     public List<DhlShipment> retrieveDailyShipment(String shipmentDate){

@@ -39,5 +39,11 @@ public class LogisticsJobProblem {
 
 	@Column(name="vehicle_type")
 	private String vehicleType;
+
+	@Column(name="algorithm")
+	private String algorithm;	
+
+	@Column(name="optional_parameter")
+	private String optionalParameter;
 	
 }

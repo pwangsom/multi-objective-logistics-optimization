@@ -56,42 +56,16 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 	}
 	
 	@Override
-	protected void assessUtilizationFamiliarity() {
-        logger.debug("assessUtilizationFamiliarity: start....."); 
-                
-		Double[] accumulateUtil = {0.0};
-		Double[] areaResponsiblity = {0.0};
-		Double[] frequentHistory = {0.0};
-		// Double[] areaShipmentPortion = {0.0};
+	protected List<DhlShipment> getShipmentsOfEachVehicle(DhlRoute vehicle) {
+        
+		List<ChromosomeRepresentation> findingShipmentIndexOfVehicleId = solutionList.stream().filter(item -> item.chromosomeValue == vehicle.getChromosomeId()).collect(Collectors.toList());
+		List<DhlShipment> shipmentsOfEachVehicle = findingShipmentIndexOfVehicleId.stream().map(c -> c.getShipment()).collect(Collectors.toList());
+				
+        logger.trace("getShipmentsOfEachVehicle: " + vehicle.getRoute() + " having " + findingShipmentIndexOfVehicleId.size() + " shipments"); 
+        logger.trace(findingShipmentIndexOfVehicleId.stream().map(m -> m.getChromosomeIndex()).collect(Collectors.toList()).toString());
+        logger.trace(shipmentsOfEachVehicle.stream().map(m -> m.getShipmentKey()).collect(Collectors.toList()).toString());
 		
-		vehicleList.stream().forEach(vid -> {			
-			
-			List<ChromosomeRepresentation> findingShipmentIndexOfVehicleId = solutionList.stream().filter(item -> item.chromosomeValue == vid.getChromosomeId()).collect(Collectors.toList());
-			
-			List<DhlShipment> shipmentsOfEachVehicleId = findingShipmentIndexOfVehicleId.stream().map(c -> c.getShipment()).collect(Collectors.toList());			
-			
-			Double[] results = computeUtilizationFamiliarityEachVehicle(vid, shipmentsOfEachVehicleId);
-			
-			Double[] utilizationEachVehicle = {0.0};
-			Double[] areaResponsiblityEachVehicle = {0.0};
-			Double[] frequentHistoryEachVehicle = {0.0};
-			// Double[] areaShipmentPortionEachVehicle = {0.0};
-			
-			utilizationEachVehicle[0] = results[0];
-			areaResponsiblityEachVehicle[0] = results[1];
-			frequentHistoryEachVehicle[0] = results[2];
-			// areaShipmentPortionEachVehicle[0] = results[3];
-			
-			areaResponsiblity[0] += areaResponsiblityEachVehicle[0];
-			frequentHistory[0] += frequentHistoryEachVehicle[0];
-			// areaShipmentPortion[0] += areaShipmentPortionEachVehicle[0];		
-			
-		});
-		
-		utilization = accumulateUtil[0] / Double.valueOf(vehicleList.size());
-		familiarity = (areaResponsiblity[0] + frequentHistory[0]) / 2.0;
-
-        logger.debug("assessUtilizationFamiliarity: finished..");     
+		return shipmentsOfEachVehicle;	
 	}
 	
 	private void converToSolutionList() {

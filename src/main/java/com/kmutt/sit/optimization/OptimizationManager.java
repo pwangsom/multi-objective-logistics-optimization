@@ -27,6 +27,7 @@ import com.kmutt.sit.jpa.entities.DhlShipment;
 import com.kmutt.sit.jpa.entities.LogisticsJob;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
+import com.kmutt.sit.jpa.entities.LogisticsJobResultDetail;
 import com.kmutt.sit.utilities.JavaUtils;
 
 import lombok.Setter;
@@ -93,13 +94,11 @@ public class OptimizationManager {
 		List<DhlShipment> shipmentList = nsgaIIIHelper.getLogisticsHelper().retrieveValidDailyShipmentForVan(shipmentDate)
 				.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
 		
-		nsgaIIIHelper.setVehicleType("Van");
-		nsgaIIIHelper.setShipmentList(shipmentList);
-		nsgaIIIHelper.setRouteList(vanList);
-		nsgaIIIHelper.setFunFile(fileOutputName("van", "fun"));
-		nsgaIIIHelper.setVarFile(fileOutputName("van", "var"));
-
-		runNsgaIII();
+		if(shipmentList.isEmpty()) {
+			printShipmentEmpty(shipmentDate, "Van");			
+		} else {
+			runNsgaIII("Van", shipmentList, vanList);
+		}
 
         logger.info("allocateDailyShipmentForVan: finished..");  		
 	}
@@ -110,23 +109,22 @@ public class OptimizationManager {
 		List<DhlShipment> shipmentList = nsgaIIIHelper.getLogisticsHelper().retrieveDailyValidShipmentForBike(shipmentDate)
 											.stream().sorted(Comparator.comparingInt(DhlShipment::getShipmentKey)).collect(Collectors.toList());
 		
-		nsgaIIIHelper.setVehicleType("Bike");
-		nsgaIIIHelper.setShipmentList(shipmentList);
-		nsgaIIIHelper.setRouteList(bikeList);
-		nsgaIIIHelper.setFunFile(fileOutputName("bike", "fun"));
-		nsgaIIIHelper.setVarFile(fileOutputName("bike", "var"));
-		
-		runNsgaIII();
+		if(shipmentList.isEmpty()) {
+			printShipmentEmpty(shipmentDate, "Bike");
+		} else {
+			runNsgaIII("Bike", shipmentList, bikeList);
+		}
 
         logger.info("allocateDailyShipmentForBike: finished..");  
 	}
 	
-	private String fileOutputName(String vehicleType, String fileType) {
-		return nsgaIIIHelper.getLogisticsHelper().getOutputPath() + "/" + nsgaIIIHelper.getJobId() 
-				+ "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + fileType + ".csv";
+	private void printShipmentEmpty(String shipmentDate, String vehicleType) {
+		logger.warn("There is no shipment on {" + shipmentDate + "} for {" + vehicleType + "}.");
 	}
 	
-	private void runNsgaIII() {
+	private void runNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
+		
+		prepareNsgaIIIHelperBeforeRunningNsgaIII(vehicleType, shipmentList, routeList);
 		
 		if(logger.isDebugEnabled()) previewLogisticsOperate();
 		
@@ -159,14 +157,29 @@ public class OptimizationManager {
 		
 		// Insert table logistics_job_problem        
         if(nsgaIIIHelper.getLogisticsHelper().isOutputDatabaseEnabled()) {
-            LogisticsJobProblem problem = saveLogisticsJobProblem(paretoSet.size());            
+            LogisticsJobProblem problem = saveLogisticsJobProblem(paretoSet.size());
+            logger.info("Logistics Job Problem is saved...");
             saveLogisticsJobResults(problem.getProblemId(), paretoSet, normalizedParetoSet);        	
         }
+	}
+	
+	private void prepareNsgaIIIHelperBeforeRunningNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
+		nsgaIIIHelper.setVehicleType(vehicleType);
+		nsgaIIIHelper.setShipmentList(shipmentList);
+		nsgaIIIHelper.setRouteList(routeList);
+		nsgaIIIHelper.setFunFile(getFileOutputName(vehicleType.toLowerCase(), "fun"));
+		nsgaIIIHelper.setVarFile(getFileOutputName(vehicleType.toLowerCase(), "var"));		
+	}
+	
+	private String getFileOutputName(String vehicleType, String fileType) {
+		return nsgaIIIHelper.getLogisticsHelper().getOutputPath() + "/" + nsgaIIIHelper.getJobId() 
+				+ "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + fileType + ".csv";
 	}
 	
 	private void saveLogisticsJobResults(Integer problemId, List<IntegerSolution> paretoSet, List<PointSolution> normalizedParetoSet) {
 		
 		List<LogisticsJobResult> results = new ArrayList<LogisticsJobResult>();
+		// List<LogisticsJobResultDetail> resultDetail = new ArrayList<LogisticsJobResultDetail>();
 		
 		
 		IntStream.range(0, paretoSet.size()).forEach(i -> {
@@ -184,16 +197,46 @@ public class OptimizationManager {
 			PointSolution normalizedParetoSolution = normalizedParetoSet.get(i);
 			result.setNormalizedObjective1(BigDecimal.valueOf(normalizedParetoSolution.getObjective(0)));
 			result.setNormalizedObjective2(BigDecimal.valueOf(normalizedParetoSolution.getObjective(1)));
-			result.setNormalizedObjective3(BigDecimal.valueOf(normalizedParetoSolution.getObjective(2)));
-			
+			result.setNormalizedObjective3(BigDecimal.valueOf(normalizedParetoSolution.getObjective(2)));			
 
 			results.add(result);
+			// resultDetail.addAll(getLogisticsJobResultDetail(problemId, i, paretoSet.get(i)));
+			
 		});
 		
 		nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobResult(results);
+        logger.info("Logistics Job Results are saved...");
+        
+		// nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobResultDetail(resultDetail);
+        // logger.info("Logistics Job Result Details are saved...");
+	}
+	
+	private List<LogisticsJobResultDetail> getLogisticsJobResultDetail(Integer problemId, Integer solutionIndex, IntegerSolution solution) {
+		
+		List<LogisticsJobResultDetail> details = new ArrayList<LogisticsJobResultDetail>();
+		
+		for (int[] i = {0}; i[0] < solution.getNumberOfVariables(); i[0]++) {
+			
+			LogisticsJobResultDetail detail = new LogisticsJobResultDetail();
+			detail.setProblemId(problemId);
+			detail.setSolutionIndex(solutionIndex);
+			detail.setShipmentDate(nsgaIIIHelper.getShipmentDate());
+			detail.setVehicleType(nsgaIIIHelper.getVehicleType());
+			
+			DhlRoute route = nsgaIIIHelper.getRouteList().stream().filter(r -> r.getChromosomeId() == solution.getVariableValue(i[0])).collect(Collectors.toList()).get(0);
+			detail.setChromosomeId(route.getChromosomeId());
+			detail.setRoute(route.getRoute());
+			
+			detail.setShipmentKey(nsgaIIIHelper.getShipmentList().get(i[0]).getShipmentKey());
+			
+			details.add(detail);			
+		}
+		
+		return details;
 	}
 	
 	private LogisticsJobProblem saveLogisticsJobProblem(Integer noOfSolutions) {
+		
 		LogisticsJobProblem problem = new LogisticsJobProblem();
 		problem.setJobId(jobId);
 		problem.setShipmentDate(nsgaIIIHelper.getShipmentDate());
@@ -206,18 +249,25 @@ public class OptimizationManager {
 		problem.setRouteList(JavaUtils.removeStringOfList(routeList));
 		problem.setNoOfSolutions(noOfSolutions);
 		problem.setSolutionType("generated");
+		problem.setAlgorithm("nsgaiii");
+		problem.setOptionalParameter("version1");
+		
+        logger.info("saveLogisticsJob: finished..");  
 		
 		return nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobProblem(problem);
 	}
 	
-	private void saveLogisticsJob() {
+	private void saveLogisticsJob() {		
+		
 		LogisticsJob job = new LogisticsJob();
 		job.setJobId(nsgaIIIHelper.getJobId());
 		job.setVehicleConfig(nsgaIIIHelper.getLogisticsHelper().getVehicleTypes());
 		job.setMaxRun(nsgaIIIHelper.getMaxRun());
 		job.setMaxIteration(nsgaIIIHelper.getMaxIteration());
 		
-		nsgaIIIHelper.getLogisticsHelper().saveLogisticsJob(job);
+		nsgaIIIHelper.getLogisticsHelper().saveLogisticsJob(job);		
+
+        logger.info("Logistics Job is saved...");  
 	}
 	
 	private String getSolutionString(IntegerSolution solution) {
