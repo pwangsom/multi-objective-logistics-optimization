@@ -89,7 +89,7 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 		});
 		
 		utilization = accumulateUtil[0] / Double.valueOf(vehicleList.size());
-		familiarity = areaResponsiblity[0] + frequentHistory[0];
+		familiarity = (areaResponsiblity[0] + frequentHistory[0]) / 2.0;
 
         logger.debug("assessUtilizationFamiliarity: finished..");     
 	}

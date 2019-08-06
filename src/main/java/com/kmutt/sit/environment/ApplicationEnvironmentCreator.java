@@ -33,9 +33,6 @@ public class ApplicationEnvironmentCreator {
         
 		File folder = new File(outputPath);
 		
-		logger.debug("Folder exists: " + folder.exists());
-		logger.debug("Is folder    : " + folder.isDirectory());
-		
 		if (!folder.isDirectory()) {	
 			folder.mkdir();			
 	        logger.debug("Output path was not exist, but it is just crated");

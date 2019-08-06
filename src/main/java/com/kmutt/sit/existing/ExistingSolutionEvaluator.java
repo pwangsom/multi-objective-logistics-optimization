@@ -126,17 +126,16 @@ public class ExistingSolutionEvaluator {
 		 * shipmentKeyList).doubleValue();
 		 */
 		
-		// results[1] /= Double.valueOf(shipmentsEachVehicle.size());
-		// results[2] /= Double.valueOf(shipmentsEachVehicle.size());			
+		results[1] = (results[1] / Double.valueOf(shipmentsEachVehicle.size())) * 100.00;
+		results[2] = (results[2] / Double.valueOf(shipmentsEachVehicle.size())) * 100.00;			
 
 		logger.trace(String.format("%d, %s: having %d shipments -> %.4f, %.4f, %.4f", vehicle.getChromosomeId(), vehicle.getRoute(),
-				shipmentsEachVehicle.size(), results[0], results[1], results[2]));
-		
-		logger.trace("");		
+				shipmentsEachVehicle.size(), results[0], results[1], results[2]));	
 		
 		return results;
 		
 	}
+	
 	
 	protected Double calculateUtilizationOfEachVehicle(Double actualShipments, Double utilizedShipments) {
 		return (1-(Math.abs(actualShipments-utilizedShipments)/utilizedShipments))*100;
