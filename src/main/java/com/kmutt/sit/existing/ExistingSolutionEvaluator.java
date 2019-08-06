@@ -129,10 +129,10 @@ public class ExistingSolutionEvaluator {
 		// results[1] /= Double.valueOf(shipmentsEachVehicle.size());
 		// results[2] /= Double.valueOf(shipmentsEachVehicle.size());			
 
-		logger.debug(String.format("%d, %s: having %d shipments -> %.4f, %.4f, %.4f", vehicle.getChromosomeId(), vehicle.getRoute(),
+		logger.trace(String.format("%d, %s: having %d shipments -> %.4f, %.4f, %.4f", vehicle.getChromosomeId(), vehicle.getRoute(),
 				shipmentsEachVehicle.size(), results[0], results[1], results[2]));
 		
-		logger.debug("");		
+		logger.trace("");		
 		
 		return results;
 		

@@ -50,7 +50,7 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 		
         assessUtilizationFamiliarity();
         
-        if(logger.isDebugEnabled()) printSolutionList();
+        if(logger.isTraceEnabled()) printSolutionList();
         
         logger.debug("evaluate: finished..");          
 	}
@@ -118,7 +118,7 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 					s.getChromosomeIndex(), s.getShipment().getAreaCode(), s.getChromosomeValue(), s.getRoute().getRoute());
 			
 			
-			logger.debug(log);
+			logger.trace(log);
 		});
 	}
 	
