@@ -167,13 +167,8 @@ public class OptimizationManager {
 		nsgaIIIHelper.setVehicleType(vehicleType);
 		nsgaIIIHelper.setShipmentList(shipmentList);
 		nsgaIIIHelper.setRouteList(routeList);
-		nsgaIIIHelper.setFunFile(getFileOutputName(vehicleType.toLowerCase(), "fun"));
-		nsgaIIIHelper.setVarFile(getFileOutputName(vehicleType.toLowerCase(), "var"));		
-	}
-	
-	private String getFileOutputName(String vehicleType, String fileType) {
-		return nsgaIIIHelper.getLogisticsHelper().getOutputPath() + "/" + nsgaIIIHelper.getJobId() 
-				+ "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + fileType + ".csv";
+		nsgaIIIHelper.setFunFile(OptimizationHelper.getFileOutputName(nsgaIIIHelper, vehicleType.toLowerCase(), "fun"));
+		nsgaIIIHelper.setVarFile(OptimizationHelper.getFileOutputName(nsgaIIIHelper, vehicleType.toLowerCase(), "var"));		
 	}
 	
 	private void saveLogisticsJobResults(Integer problemId, List<IntegerSolution> paretoSet, List<PointSolution> normalizedParetoSet) {
@@ -182,12 +177,17 @@ public class OptimizationManager {
 		// List<LogisticsJobResultDetail> resultDetail = new ArrayList<LogisticsJobResultDetail>();
 		
 		
+		
+		
 		IntStream.range(0, paretoSet.size()).forEach(i -> {
 			LogisticsJobResult result = new LogisticsJobResult();
 			result.setProblemId(problemId);
 			result.setSolutionIndex(i);
 			
-			IntegerSolution paretoSolution = paretoSet.get(i);			
+			IntegerSolution paretoSolution = paretoSet.get(i);
+			
+			paretoSolution
+			
 			String routeList = JavaUtils.removeStringOfList(getSolutionString(paretoSolution));
 			result.setSolutionDetail(routeList);			
 			result.setObjective1(BigDecimal.valueOf(paretoSolution.getObjective(0)));
@@ -209,6 +209,46 @@ public class OptimizationManager {
         
 		// nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobResultDetail(resultDetail);
         // logger.info("Logistics Job Result Details are saved...");
+	}
+	
+	private IntegerSolution[] getBestEachObjective(List<IntegerSolution> paretoSet) {
+		
+		IntegerSolution[] results = new IntegerSolution[4];
+		
+		Comparator<IntegerSolution> byFirtObjective = new Comparator<IntegerSolution>() {
+			@Override
+			public int compare(IntegerSolution s1, IntegerSolution s2) {
+				return Double.compare(s1.getObjective(0), s2.getObjective(0));
+			}			
+		};
+		
+		Comparator<IntegerSolution> bySecondObjective = new Comparator<IntegerSolution>() {
+			@Override
+			public int compare(IntegerSolution s1, IntegerSolution s2) {
+				return Double.compare(s1.getObjective(1), s2.getObjective(2));
+			}			
+		};
+		
+		Comparator<IntegerSolution> byThirdObjective = new Comparator<IntegerSolution>() {
+			@Override
+			public int compare(IntegerSolution s1, IntegerSolution s2) {
+				return Double.compare(s1.getObjective(2), s2.getObjective(2));
+			}			
+		};
+		
+		paretoSet.sort(byThirdObjective.thenComparing(bySecondObjective).thenComparing(byFirtObjective));
+		results[3] = paretoSet.get(0);
+
+		paretoSet.sort(bySecondObjective.thenComparing(byThirdObjective).thenComparing(byFirtObjective));
+		results[2] = paretoSet.get(0);
+		
+		paretoSet.sort(byFirtObjective.thenComparing(byThirdObjective).thenComparing(bySecondObjective));
+		results[1] = paretoSet.get(0);
+		
+		paretoSet.sort(byFirtObjective.thenComparing(bySecondObjective).thenComparing(byThirdObjective));
+		results[0] = paretoSet.get(0);
+		
+		return results;
 	}
 	
 	private List<LogisticsJobResultDetail> getLogisticsJobResultDetail(Integer problemId, Integer solutionIndex, IntegerSolution solution) {

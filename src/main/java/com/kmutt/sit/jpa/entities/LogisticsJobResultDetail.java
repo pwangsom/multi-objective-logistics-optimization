@@ -37,6 +37,9 @@ public class LogisticsJobResultDetail {
 	@Column(name="route")
 	private String route;	
 
-	@Column(name="shipment_key")
-	private Integer shipmentKey;
+	@Column(name="shipment_list")
+	private String shipmentList;
+	
+	@Column(name="solution_type")
+	private String solutionType;
 }
