@@ -19,7 +19,7 @@ import org.uma.jmetal.util.front.Front;
 import org.uma.jmetal.util.front.imp.ArrayFront;
 import org.uma.jmetal.util.point.util.PointSolution;
 
-import com.kmutt.sit.jmetal.front.ExtendedFrontNormalizer;
+import com.kmutt.sit.jmetal.front.ModifiedFrontNormalizer;
 import com.kmutt.sit.jmetal.runner.LogisticsNsgaIIIIntegerRunner;
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
@@ -151,7 +151,7 @@ public class OptimizationManager {
         
         List<IntegerSolution> paretoSet = SolutionListUtils.getNondominatedSolutions(solutions);
         Front referenceFront = new ArrayFront(paretoSet);
-        ExtendedFrontNormalizer frontNormalizer = new ExtendedFrontNormalizer(referenceFront);            
+        ModifiedFrontNormalizer frontNormalizer = new ModifiedFrontNormalizer(referenceFront);            
         @SuppressWarnings("unchecked")
 		List<PointSolution> normalizedParetoSet = (List<PointSolution>) frontNormalizer.normalize(paretoSet);
 		
@@ -249,8 +249,8 @@ public class OptimizationManager {
 		problem.setRouteList(JavaUtils.removeStringOfList(routeList));
 		problem.setNoOfSolutions(noOfSolutions);
 		problem.setSolutionType("generated");
-		problem.setAlgorithm("nsgaiii");
-		problem.setOptionalParameter("version1");
+		problem.setAlgorithm(nsgaIIIHelper.getNsgaVersion());
+		problem.setOptionalParameter(nsgaIIIHelper.getObjectiveVersion() + "_max" + nsgaIIIHelper.getMaxIteration());
 		
         logger.info("saveLogisticsJob: finished..");  
 		

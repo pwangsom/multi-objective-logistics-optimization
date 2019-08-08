@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
 import com.kmutt.sit.jpa.entities.DhlRoute;
@@ -31,6 +32,9 @@ public class ExistingSolutionManager {
 	
 	@Autowired
 	private LogisticsOptimizationHelper logisticsHelper;
+
+    @Value("${nsga.version}")
+    private String objectiveVersion;
 	
 	private List<DhlRoute> vanList;
 	private List<DhlRoute> bikeList;
@@ -121,6 +125,7 @@ public class ExistingSolutionManager {
 		problem.setRouteList(JavaUtils.removeStringOfList(routeList));
 		problem.setNoOfSolutions(1);
 		problem.setSolutionType("existing");
+		problem.setOptionalParameter(objectiveVersion + "_max0");
 		
 		return logisticsHelper.saveLogisticsJobProblem(problem);
 	}

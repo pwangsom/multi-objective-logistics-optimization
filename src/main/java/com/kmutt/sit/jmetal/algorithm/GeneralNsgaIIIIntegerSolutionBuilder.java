@@ -23,9 +23,22 @@ public class GeneralNsgaIIIIntegerSolutionBuilder {
 				.setMaxIterations(maxIterations);
 	}
 	
-	public NsgaIIIIntegerSolution build() {
+	public NsgaIIIIntegerSolution buildNsgaIIIIntegerSolution() {
 		
 		NsgaIIIIntegerSolution algorithm = new NsgaIIIIntegerSolution(builder) {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+		};
+		
+		return algorithm;
+	}
+	
+	public ModifiedNsgaIIIIntegerSolution buildModifiedNsgaIIIIntegerSolution() {
+		
+		ModifiedNsgaIIIIntegerSolution algorithm = new ModifiedNsgaIIIIntegerSolution(builder) {
 
 			/**
 			 * 

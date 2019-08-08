@@ -9,26 +9,26 @@ import org.uma.jmetal.util.front.imp.ArrayFront;
 import org.uma.jmetal.util.front.util.FrontNormalizer;
 import org.uma.jmetal.util.front.util.FrontUtils;
 
-public class ExtendedFrontNormalizer extends FrontNormalizer {
+public class ModifiedFrontNormalizer extends FrontNormalizer {
 
 	private double[] maximumValues;
 	private double[] minimumValues;
 
-	public ExtendedFrontNormalizer(List<? extends Solution<?>> referenceFront) {
+	public ModifiedFrontNormalizer(List<? extends Solution<?>> referenceFront) {
 		super(referenceFront);				
 
 	    maximumValues = FrontUtils.getMaximumValues(new ArrayFront(referenceFront));
 	    minimumValues = FrontUtils.getMinimumValues(new ArrayFront(referenceFront));
 	}
 	
-	public ExtendedFrontNormalizer(Front referenceFront) {
+	public ModifiedFrontNormalizer(Front referenceFront) {
 		super(referenceFront);
 		
 	    maximumValues = FrontUtils.getMaximumValues(referenceFront);
 	    minimumValues = FrontUtils.getMinimumValues(referenceFront);
 	}
 	
-	public ExtendedFrontNormalizer(double[] minimumValues, double[] maximumValues) {
+	public ModifiedFrontNormalizer(double[] minimumValues, double[] maximumValues) {
 		super(minimumValues, maximumValues);
 		// TODO Auto-generated constructor stub
 		

@@ -30,9 +30,7 @@ public abstract class NsgaIIIIntegerSolution extends NSGAIII<IntegerSolution> {
 	@Override
 	protected boolean isStoppingConditionReached() {
 		
-		String generationLog = String.format("NSGA-III: Gen %d of %d", iterations, maxIterations);
-
-		logger.debug("");
+		String generationLog = String.format(getName() + ": Gen %d of %d", iterations, maxIterations);
 		logger.info(generationLog);
 				
 		return iterations >= maxIterations;

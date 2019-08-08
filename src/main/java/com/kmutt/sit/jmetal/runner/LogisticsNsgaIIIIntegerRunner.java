@@ -73,8 +73,13 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 		 * .setMaxIterations(this.maxIteration) .build() ;
 		 */
 	    
-		 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration)
-					.build();
+		if(helper.getNsgaVersion().equalsIgnoreCase("mnsgaiii")) {			
+			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration)
+						.buildModifiedNsgaIIIIntegerSolution();
+		} else {			
+			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration)
+						.buildNsgaIIIIntegerSolution();			
+		}
 	    
 
 	    algorithmRunner = new AlgorithmRunner.Executor(algorithm).execute();
@@ -91,7 +96,7 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	    }	
 		
 	}
-	
+		
 	private void printOutputFiles() {
 	    
 	    new SolutionListOutput(solutions)
