@@ -125,6 +125,7 @@ public class ExistingSolutionManager {
 		problem.setRouteList(JavaUtils.removeStringOfList(routeList));
 		problem.setNoOfSolutions(1);
 		problem.setSolutionType("existing");
+		problem.setAlgorithm("dhl");
 		problem.setOptionalParameter(objectiveVersion + "_max0");
 		
 		return logisticsHelper.saveLogisticsJobProblem(problem);

@@ -107,12 +107,8 @@ public class ExistingSolutionEvaluator {
 		 *  results[2] for frequentHistoryEachVehicle;
 		 *  results[3] for areaShipmentPortionEachVehicle;
 		 */
-		
-		
-		Double actualShipments = Double.valueOf(shipmentsEachVehicle.size());
-		DhlRouteUtilization routeUtil = logisticsHelper.getRouteUtilizationMapping().get(vehicle.getRoute());
-		
-		results[0] = calculateUtilizationOfEachVehicle(actualShipments, routeUtil.getAllAvg().doubleValue());		
+				
+		results[0] = calculateUtilizationEachVehicle(vehicle, shipmentsEachVehicle.size());		
 		
 		shipmentsEachVehicle.stream().forEach(s -> {
 			
@@ -138,8 +134,36 @@ public class ExistingSolutionEvaluator {
 		
 	}
 	
+	protected Double calculateUtilizationEachVehicle(DhlRoute vehicle, Integer shipmentSize) {
+        logger.trace("calculateUtilizationEachVehicle: " + logisticsHelper.getObjectiveVersion()); 
+        
+		Double result = 0.0;
+		
+		Double actualShipments = Double.valueOf(shipmentSize);
+		DhlRouteUtilization routeUtil = logisticsHelper.getRouteUtilizationMapping().get(vehicle.getRoute());
+		Double avgShipmentMonth = routeUtil.getAllAvg().doubleValue();
+		
+		if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version2")) {			
+			result = calculateUtilization(actualShipments, avgShipmentMonth); 
+			
+		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version3")) {	
+	        logger.info("calculateUtilizationEachVehicle: " + logisticsHelper.getObjectiveVersion()); 
+	        
+			Double avgShipmentDay = 0.0;
+			
+			if(logisticsHelper.getDailyRouteAreaUtilizationMapping().containsKey(shipmentDate + "_" + vehicle.getRoute())) {
+				avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
+			}
+			
+			if(avgShipmentDay > avgShipmentMonth)
+				result = calculateUtilization(actualShipments, avgShipmentDay); 
+		}
+		
+		return result;
+	}
 	
-	protected Double calculateUtilizationOfEachVehicle(Double actualShipments, Double utilizedShipments) {
+	
+	protected Double calculateUtilization(Double actualShipments, Double utilizedShipments) {
 		return (1-(Math.abs(actualShipments-utilizedShipments)/utilizedShipments))*100.0;
 	}
 

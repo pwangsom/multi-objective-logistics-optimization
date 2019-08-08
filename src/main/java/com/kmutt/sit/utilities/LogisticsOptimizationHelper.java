@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.kmutt.sit.jpa.entities.DhlAreaRouteScore;
+import com.kmutt.sit.jpa.entities.DhlDailyRouteAreaUtilization;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteAreaPortion;
 import com.kmutt.sit.jpa.entities.DhlRoutePostcodeArea;
@@ -27,6 +28,7 @@ import com.kmutt.sit.jpa.entities.LogisticsJobResult;
 import com.kmutt.sit.jpa.entities.LogisticsJobResultDetail;
 import com.kmutt.sit.jpa.entities.services.StoredProcedureService;
 import com.kmutt.sit.jpa.respositories.DhlAreaRouteScoreRespository;
+import com.kmutt.sit.jpa.respositories.DhlDailyRouteAreaUtilizationRepository;
 import com.kmutt.sit.jpa.respositories.DhlRouteAreaPortionRepository;
 import com.kmutt.sit.jpa.respositories.DhlRoutePostcodeAreaRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteRespository;
@@ -53,7 +55,9 @@ public class LogisticsOptimizationHelper {
     @Autowired
     private DhlRouteAreaPortionRepository dhlRouteAreaPortionRepository;      
     @Autowired
-    private DhlRouteUtilizationRepository dhlRouteUtilizationRepository;     
+    private DhlRouteUtilizationRepository dhlRouteUtilizationRepository;    
+    @Autowired
+    private DhlDailyRouteAreaUtilizationRepository dhlDailyRouteAreaUtilizationRepository;
     @Autowired
     private LogisticsJobRepository logisticsJobRepository;    
     @Autowired
@@ -67,7 +71,11 @@ public class LogisticsOptimizationHelper {
 
     @Getter
     @Value("${app.output.path}")
-    private String outputPath;
+    private String outputPath;    
+
+    @Getter
+    @Value("${nsga.objective.version}")
+    private String objectiveVersion;
     
     @Value("${shipment.month}")
     private String shipmentMonth;
@@ -105,8 +113,10 @@ public class LogisticsOptimizationHelper {
     private List<DhlRouteAreaPortion> routeAreaPortionList;
     
     @Getter
-    private Map<String, DhlRouteUtilization> routeUtilizationMapping;
-    
+    private Map<String, DhlRouteUtilization> routeUtilizationMapping;    
+
+    @Getter
+    private Map<String, DhlDailyRouteAreaUtilization> dailyRouteAreaUtilizationMapping;    
 
     private List<String> shipmentDateList;
     
@@ -123,6 +133,7 @@ public class LogisticsOptimizationHelper {
     	this.routeAreaPortionList = dhlRouteAreaPortionRepository.findAll();
     	
     	initialRouteUtilizationMapping();
+    	initialDailyRouteAreaUtilizationMapping();
     }
     
     public List<String> retrieveShipmentDateList(){
@@ -229,6 +240,16 @@ public class LogisticsOptimizationHelper {
     	
     	routes.stream().forEach(r -> {
     		routeUtilizationMapping.put(r.getRoute(), r);
+    	});
+    }
+    
+    private void initialDailyRouteAreaUtilizationMapping() {
+    	List<DhlDailyRouteAreaUtilization> routes = dhlDailyRouteAreaUtilizationRepository.findAll();
+    	
+    	dailyRouteAreaUtilizationMapping = new HashMap<String, DhlDailyRouteAreaUtilization>();
+    	
+    	routes.stream().forEach(r -> {
+    		dailyRouteAreaUtilizationMapping.put(r.getShipmentDate() + "_" +r.getRoute(), r);
     	});
     }
     
