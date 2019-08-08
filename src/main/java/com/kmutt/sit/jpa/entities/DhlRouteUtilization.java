@@ -18,6 +18,9 @@ public class DhlRouteUtilization {
 	@Column(name="id")
 	private Integer id;
 	
+	@Column(name="chromosome_id")
+	private Integer chromosomeId;
+	
 	@Column(name="route")
 	private String route;	
 
