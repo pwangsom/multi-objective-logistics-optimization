@@ -1,5 +1,10 @@
 package com.kmutt.sit.jmetal.algorithm;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.util.ReferencePoint;
 import org.uma.jmetal.operator.SelectionOperator;
 import org.uma.jmetal.solution.Solution;
@@ -7,12 +12,11 @@ import org.uma.jmetal.util.JMetalException;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import org.uma.jmetal.util.solutionattribute.SolutionAttribute;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("serial")
 public class ModifiedEnvironmentalSelection<S extends Solution<?>>
 		implements SelectionOperator<List<S>, List<S>>, SolutionAttribute<S, List<Double>> {
+	
+	private Logger logger = LoggerFactory.getLogger(ModifiedEnvironmentalSelection.class);
 
 	private List<List<S>> fronts;
 	private int solutionsToSelect;
@@ -184,10 +188,10 @@ public class ModifiedEnvironmentalSelection<S extends Solution<?>>
 				for (int f = 0; f < numberOfObjectives; f++) {
 					List<Double> conv_obj = (List<Double>) getAttribute(s);
 					if (Math.abs(intercepts.get(f) - ideal_point.get(f)) > 10e-10) {
-						// conv_obj.set(f,conv_obj.get(f) / (intercepts.get(f)-ideal_point.get(f)));
+						conv_obj.set(f,conv_obj.get(f) / (intercepts.get(f)-ideal_point.get(f)));
+						
 						// avoid the divide-by-zero error
-
-						conv_obj.set(f, conv_obj.get(f) / intercepts.get(f));
+						// conv_obj.set(f, conv_obj.get(f) / intercepts.get(f));
 					} else {
 						conv_obj.set(f, conv_obj.get(f) / (10e-10));
 					}
@@ -226,7 +230,10 @@ public class ModifiedEnvironmentalSelection<S extends Solution<?>>
 						min_rp = r;
 					}
 				}
-				if (t + 1 != fronts.size()) {
+				
+				logger.trace("fronts.size: " + fronts.size() + ", (t+1): " + (t+1) + ", referencePoints.size()" + this.referencePoints.size() + ", min_rp: " + min_rp);
+				
+				if (t + 1 != fronts.size()) {					
 					this.referencePoints.get(min_rp).AddMember();
 				} else {
 					this.referencePoints.get(min_rp).AddPotentialMember(s, min_dist);

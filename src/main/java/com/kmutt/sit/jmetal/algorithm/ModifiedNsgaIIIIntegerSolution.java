@@ -11,14 +11,19 @@ import org.uma.jmetal.algorithm.multiobjective.nsgaiii.util.ReferencePoint;
 import org.uma.jmetal.solution.IntegerSolution;
 import org.uma.jmetal.util.solutionattribute.Ranking;
 
+import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
+
 @SuppressWarnings("serial")
 public class ModifiedNsgaIIIIntegerSolution extends NSGAIII<IntegerSolution> {
 	
 	private Logger logger = LoggerFactory.getLogger(ModifiedNsgaIIIIntegerSolution.class);
+	private NsgaIIIHelper helper;
 	
-	public ModifiedNsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder) {
+	public ModifiedNsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {
 		super(builder);
 		// TODO Auto-generated constructor stub
+
+		this.helper = helper;
 
 		logger.debug("");
 		logger.info("Algorithm: " + getName());
@@ -34,8 +39,8 @@ public class ModifiedNsgaIIIIntegerSolution extends NSGAIII<IntegerSolution> {
 	
 	@Override
 	protected boolean isStoppingConditionReached() {
-		
-		String generationLog = String.format(getName() + ": Gen %d of %d", iterations, maxIterations);
+
+		String generationLog = String.format(getName() + ": Shipment Date %s -> Gen %d of %d", helper.getShipmentDate(), iterations, maxIterations);
 		logger.info(generationLog);
 				
 		return iterations >= maxIterations;

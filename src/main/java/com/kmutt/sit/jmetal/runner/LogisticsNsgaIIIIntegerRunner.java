@@ -36,7 +36,6 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	private AlgorithmRunner algorithmRunner;
 	
 	private int maxIteration = 300;
-	@SuppressWarnings("unused")
 	private String referenceParetoFront = "src/main/resources/NBI_3_12.pf";
 	
 	private NsgaIIIHelper helper;
@@ -74,10 +73,10 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 		 */
 	    
 		if(helper.getNsgaVersion().equalsIgnoreCase("mnsgaiii")) {			
-			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration)
+			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 						.buildModifiedNsgaIIIIntegerSolution();
 		} else {			
-			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration)
+			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 						.buildNsgaIIIIntegerSolution();			
 		}
 	    

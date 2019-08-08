@@ -9,23 +9,28 @@ import org.uma.jmetal.operator.SelectionOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.solution.IntegerSolution;
 
+import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
+
 public class GeneralNsgaIIIIntegerSolutionBuilder {
 	
 	private NSGAIIIBuilder<IntegerSolution> builder;
+	private NsgaIIIHelper helper;
 
 	public GeneralNsgaIIIIntegerSolutionBuilder(Problem<IntegerSolution> problem, CrossoverOperator<IntegerSolution> crossover, MutationOperator<IntegerSolution> mutation,
-			SelectionOperator<List<IntegerSolution>, IntegerSolution> selection, int maxIterations) {
+			SelectionOperator<List<IntegerSolution>, IntegerSolution> selection, int maxIterations, NsgaIIIHelper helper) {
 		
 		builder = new NSGAIIIBuilder<IntegerSolution>(problem)
 				.setCrossoverOperator(crossover)
 				.setMutationOperator(mutation)
 				.setSelectionOperator(selection)
 				.setMaxIterations(maxIterations);
+		
+		this.helper = helper;
 	}
 	
 	public NsgaIIIIntegerSolution buildNsgaIIIIntegerSolution() {
 		
-		NsgaIIIIntegerSolution algorithm = new NsgaIIIIntegerSolution(builder) {
+		NsgaIIIIntegerSolution algorithm = new NsgaIIIIntegerSolution(builder, helper) {
 
 			/**
 			 * 
@@ -38,7 +43,7 @@ public class GeneralNsgaIIIIntegerSolutionBuilder {
 	
 	public ModifiedNsgaIIIIntegerSolution buildModifiedNsgaIIIIntegerSolution() {
 		
-		ModifiedNsgaIIIIntegerSolution algorithm = new ModifiedNsgaIIIIntegerSolution(builder) {
+		ModifiedNsgaIIIIntegerSolution algorithm = new ModifiedNsgaIIIIntegerSolution(builder, helper) {
 
 			/**
 			 * 
