@@ -147,7 +147,6 @@ public class ExistingSolutionEvaluator {
 			result = calculateUtilization(actualShipments, avgShipmentMonth); 
 			
 		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version3")) {	
-	        logger.info("calculateUtilizationEachVehicle: " + logisticsHelper.getObjectiveVersion()); 
 	        
 			Double avgShipmentDay = 0.0;
 			
