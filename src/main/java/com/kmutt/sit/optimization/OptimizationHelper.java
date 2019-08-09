@@ -52,7 +52,8 @@ public class OptimizationHelper {
 	
 	public static String getFileOutputName(NsgaIIIHelper nsgaIIIHelper, String vehicleType, String fileType) {
 		return nsgaIIIHelper.getLogisticsHelper().getOutputPath() + "/" + nsgaIIIHelper.getJobId() 
-				+ "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + fileType + ".csv";
+				+ "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + nsgaIIIHelper.getNsgaVersion()
+				+ "-" + nsgaIIIHelper.getObjectiveVersion() + "-max" + nsgaIIIHelper.getMaxIteration() + "-" + fileType + ".csv";
 	}
 	
 	

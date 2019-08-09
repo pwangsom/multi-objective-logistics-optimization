@@ -1,13 +1,9 @@
 package com.kmutt.sit.jpa.entities;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import lombok.Data;
 
@@ -28,7 +24,9 @@ public class LogisticsJob {
 	@Column(name="vehicle_config")
 	private String vehicleConfig;
 	
-	@Temporal(TemporalType.DATE)
-	@Column(name="created_time")
-	private Date createdTime;
+	/*
+	 * @Temporal(TemporalType.DATE)
+	 * 
+	 * @Column(name="created_time") private Date createdTime;
+	 */
 }

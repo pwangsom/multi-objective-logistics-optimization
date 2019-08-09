@@ -154,8 +154,11 @@ public class ExistingSolutionEvaluator {
 				avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
 			}
 			
-			if(avgShipmentDay > avgShipmentMonth)
-				result = calculateUtilization(actualShipments, avgShipmentDay); 
+			if(avgShipmentDay > avgShipmentMonth) {
+				result = calculateUtilization(actualShipments, avgShipmentDay); 				
+			} else {				
+				result = calculateUtilization(actualShipments, avgShipmentMonth); 
+			}
 		}
 		
 		return result;

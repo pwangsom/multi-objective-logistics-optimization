@@ -33,7 +33,7 @@ public class ExistingSolutionManager {
 	@Autowired
 	private LogisticsOptimizationHelper logisticsHelper;
 
-    @Value("${nsga.version}")
+    @Value("${nsga.objective.version}")
     private String objectiveVersion;
 	
 	private List<DhlRoute> vanList;
