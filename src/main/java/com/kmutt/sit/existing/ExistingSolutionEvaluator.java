@@ -147,18 +147,11 @@ public class ExistingSolutionEvaluator {
 			result = calculateUtilization(actualShipments, avgShipmentMonth); 
 			
 		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version3")) {	
-	        
-			Double avgShipmentDay = 0.0;
+			result = calculateUtilizationVersion3(vehicle, actualShipments, avgShipmentMonth);
 			
-			if(logisticsHelper.getDailyRouteAreaUtilizationMapping().containsKey(shipmentDate + "_" + vehicle.getRoute())) {
-				avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
-			}
+		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version4")) {
+			result = calculateUtilizationVersion4(vehicle, actualShipments, avgShipmentMonth);
 			
-			if(avgShipmentDay > avgShipmentMonth) {
-				result = calculateUtilization(actualShipments, avgShipmentDay); 				
-			} else {				
-				result = calculateUtilization(actualShipments, avgShipmentMonth); 
-			}
 		}
 		
 		return result;
@@ -167,6 +160,45 @@ public class ExistingSolutionEvaluator {
 	
 	protected Double calculateUtilization(Double actualShipments, Double utilizedShipments) {
 		return (1-(Math.abs(actualShipments-utilizedShipments)/utilizedShipments))*100.0;
+	}
+	
+	protected Double calculateUtilizationVersion3(DhlRoute vehicle, Double actualShipments, Double utilizedShipments) {
+		Double utils = 0.0;
+		
+		Double avgShipmentDay = 0.0;
+		
+		if(logisticsHelper.getDailyRouteAreaUtilizationMapping().containsKey(shipmentDate + "_" + vehicle.getRoute())) {
+			avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
+		}		
+		
+		if(avgShipmentDay > utilizedShipments) utilizedShipments = avgShipmentDay;
+		
+		utils = calculateUtilization(actualShipments, utilizedShipments);
+		
+		return utils;
+	}
+	
+	protected Double calculateUtilizationVersion4(DhlRoute vehicle, Double actualShipments, Double utilizedShipments) {
+		Double utils = 0.0;
+		
+		Double avgShipmentDay = 0.0;
+		
+		if(logisticsHelper.getDailyRouteAreaUtilizationMapping().containsKey(shipmentDate + "_" + vehicle.getRoute())) {
+			avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
+		}		
+		
+		if(avgShipmentDay > utilizedShipments) utilizedShipments = avgShipmentDay;
+		
+		if(actualShipments <= utilizedShipments) {
+			utils = (actualShipments / utilizedShipments) * 100.0;
+		} else {
+			
+			Double multiply = Math.ceil(actualShipments / utilizedShipments);
+			utils = (1-(((actualShipments-utilizedShipments)*multiply)/utilizedShipments))*100.0;
+			
+		}
+		
+		return utils;
 	}
 
 }
