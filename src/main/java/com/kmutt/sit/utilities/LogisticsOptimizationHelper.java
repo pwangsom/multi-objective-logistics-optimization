@@ -77,6 +77,14 @@ public class LogisticsOptimizationHelper {
     @Value("${nsga.objective.version}")
     private String objectiveVersion;
     
+    @Getter
+    @Value("${area.responsibility.rate}")
+    private Double areaResponsibilityRate;
+    
+    @Getter
+    @Value("${area.history.rate}")
+    private Double areaHistoryRate;
+    
     @Value("${shipment.month}")
     private String shipmentMonth;
     
