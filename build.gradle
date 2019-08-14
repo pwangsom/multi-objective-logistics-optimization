@@ -28,7 +28,7 @@ apply plugin: 'io.spring.dependency-management'
 bootJar {
 	mainClassName = 'com.kmutt.sit.LogisticsOptimizationApplication'
     baseName = 'molp'
-    version =  '0.1.1'
+    version =  '0.1.2'
 }
 
 repositories {
