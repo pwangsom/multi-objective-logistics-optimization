@@ -19,6 +19,7 @@ import org.uma.jmetal.util.fileoutput.SolutionListOutput;
 import org.uma.jmetal.util.fileoutput.impl.DefaultFileOutputContext;
 
 import com.kmutt.sit.jmetal.algorithm.GeneralNsgaIIIIntegerSolutionBuilder;
+import com.kmutt.sit.jmetal.problem.LogisticsIntegerConstrainedProblem;
 import com.kmutt.sit.jmetal.problem.LogisticsIntegerProblem;
 import com.kmutt.sit.utilities.JavaUtils;
 
@@ -48,7 +49,12 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	}
 	
 	public void setRunnerParameter() {
-		problem = new LogisticsIntegerProblem(this.helper);
+		
+		if(helper.getLogisticsHelper().isProblemConstraintEnabled()) {
+			problem = new LogisticsIntegerConstrainedProblem(this.helper);
+		} else {
+			problem = new LogisticsIntegerProblem(this.helper);
+		}
 		
 	    double crossoverProbability = 0.9 ;
 	    double crossoverDistributionIndex = 30.0 ;

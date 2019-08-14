@@ -172,7 +172,15 @@ public class OptimizationManager {
 		logger.debug("Shipment Date: " + nsgaIIIHelper.getShipmentDate());
 		logger.debug("Vehicle Type: " + nsgaIIIHelper.getVehicleType());
 		logger.debug("No. of Shipments: " + nsgaIIIHelper.getShipmentList().size());
-		logger.debug("No. of Available Routes: " + nsgaIIIHelper.getRouteList().size());
+		logger.debug("No. of Available Routes: " + nsgaIIIHelper.getRouteList().size());	
+		
+		logger.debug("Problem Constraint Enabled: " + nsgaIIIHelper.getLogisticsHelper().isProblemConstraintEnabled());
+		logger.debug("Problem Constraint Allowed: " + nsgaIIIHelper.getLogisticsHelper().getUtilizationConstraintRate());
+		logger.debug("Utilization Version: " + nsgaIIIHelper.getLogisticsHelper().getUtilizationVersion());
+		logger.debug("Area Responsibility Rate: " + nsgaIIIHelper.getLogisticsHelper().getAreaResponsibilityRate());
+		logger.debug("Area History Rate: " + nsgaIIIHelper.getLogisticsHelper().getAreaHistoryRate());
+		
+		logger.debug("");
 	}
 	
 	private void prepareInformation() {		

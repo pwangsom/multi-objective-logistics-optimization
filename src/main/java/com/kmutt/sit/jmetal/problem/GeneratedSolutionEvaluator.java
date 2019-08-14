@@ -25,6 +25,9 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 	private IntegerSolution solution;
 	private NsgaIIIHelper nsgaIIIHelper;
 	
+	@Getter
+	private Double utilizationConstraintScore = 0.0;
+	
 	public GeneratedSolutionEvaluator(IntegerSolution solution, NsgaIIIHelper helper) {
 		super(helper.getLogisticsHelper(), helper.getShipmentDate(), helper.getShipmentList());
 		// TODO Auto-generated constructor stub
@@ -50,16 +53,52 @@ public class GeneratedSolutionEvaluator extends ExistingSolutionEvaluator {
 		
         assessUtilizationFamiliarity();
         
+        evaluateConstriants();
+        
         if(logger.isTraceEnabled()) printSolutionList();
         
         logger.debug("evaluate: finished..");          
+	}
+	
+	private void evaluateConstriants() {
+        logger.debug("evaluateConstriants: start.....");
+        
+        Double[] accumulateConstriants = {0.0};
+        
+        vehicleList.stream().forEach(route -> {
+        	
+        	int actualShipments = this.routeActualShipments.get(route.getRoute());
+        	int utilizedShipments = this.routeUtilizedShipments.get(route.getRoute());
+        	int bufferShipments = getBufferShipment(route);
+        	
+        	if(actualShipments > (utilizedShipments + bufferShipments)) {
+        		accumulateConstriants[0] += ((Double.valueOf(utilizedShipments) + Double.valueOf(bufferShipments) - Double.valueOf(actualShipments)));
+        	}
+        	
+        });
+        
+        utilizationConstraintScore = accumulateConstriants[0];
+
+        logger.debug("evaluateConstriants: finished..");       
+	}
+	
+	private int getBufferShipment(DhlRoute route) {
+		int result = 0;
+		
+		if(logisticsHelper.getUtilizationConstraintRate() == 0) {
+			result = logisticsHelper.getRouteAreasMapping().get(route.getRoute());
+		} else {
+			result = logisticsHelper.getUtilizationConstraintRate();
+		}
+		
+		return result;
 	}
 	
 	@Override
 	protected List<DhlShipment> getShipmentsOfEachVehicle(DhlRoute vehicle) {
         
 		List<ChromosomeRepresentation> findingShipmentIndexOfVehicleId = solutionList.stream().filter(item -> item.chromosomeValue == vehicle.getChromosomeId()).collect(Collectors.toList());
-		List<DhlShipment> shipmentsOfEachVehicle = findingShipmentIndexOfVehicleId.stream().map(c -> c.getShipment()).collect(Collectors.toList());
+		List<DhlShipment> shipmentsOfEachVehicle = findingShipmentIndexOfVehicleId.stream().map(c -> c.getShipment()).collect(Collectors.toList());		
 				
         logger.trace("getShipmentsOfEachVehicle: " + vehicle.getRoute() + " having " + findingShipmentIndexOfVehicleId.size() + " shipments"); 
         logger.trace(findingShipmentIndexOfVehicleId.stream().map(m -> m.getChromosomeIndex()).collect(Collectors.toList()).toString());

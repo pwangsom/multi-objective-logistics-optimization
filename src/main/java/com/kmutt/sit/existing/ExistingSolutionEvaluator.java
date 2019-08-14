@@ -1,7 +1,9 @@
 package com.kmutt.sit.existing;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -33,10 +35,15 @@ public class ExistingSolutionEvaluator {
 	@Getter
 	protected List<DhlRoute> vehicleList = new ArrayList<DhlRoute>();
 	
+	protected Map<String, Integer> routeActualShipments;
+	protected Map<String, Integer> routeUtilizedShipments;
+	
 	public ExistingSolutionEvaluator(LogisticsOptimizationHelper helper, String shipmentDate, List<DhlShipment> shipmentList) {
 		this.logisticsHelper = helper;
 		this.shipmentDate = shipmentDate;
 		this.shipmentList = shipmentList;
+		this.routeActualShipments = new HashMap<String, Integer>();
+		this.routeUtilizedShipments = new HashMap<String, Integer>();
 	}
 	
 	public void evaluate() {
@@ -60,6 +67,7 @@ public class ExistingSolutionEvaluator {
 		vehicleList.stream().forEach(vid -> {
 			
 			List<DhlShipment> shipmentsOfEachVehicle = getShipmentsOfEachVehicle(vid);
+			routeActualShipments.put(vid.getRoute(), shipmentsOfEachVehicle.size());			
 			
 			Double[] results = computeUtilizationFamiliarityEachVehicle(vid, shipmentsOfEachVehicle);
 			
@@ -153,7 +161,7 @@ public class ExistingSolutionEvaluator {
 	}
 	
 	protected Double calculateUtilizationEachVehicle(DhlRoute vehicle, Integer shipmentSize) {
-        logger.trace("calculateUtilizationEachVehicle: " + logisticsHelper.getUtilizationVersion()); 
+        logger.debug("calculateUtilizationEachVehicle: " + logisticsHelper.getUtilizationVersion()); 
         
 		Double result = 0.0;
 		
@@ -161,16 +169,28 @@ public class ExistingSolutionEvaluator {
 		DhlRouteUtilization routeUtil = logisticsHelper.getRouteUtilizationMapping().get(vehicle.getRoute());
 		Double avgShipmentMonth = routeUtil.getAllAvg().doubleValue();
 		
-		if(logisticsHelper.getUtilizationVersion() == 2) {			
-			result = calculateUtilization(actualShipments, avgShipmentMonth); 
+		Double avgShipmentDay = 0.0;
+		
+		if(logisticsHelper.getDailyRouteAreaUtilizationMapping().containsKey(shipmentDate + "_" + vehicle.getRoute())) {
+			avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
+		}
+		
+		Double utilizedShipments = avgShipmentMonth;
+		
+		if(logisticsHelper.getUtilizationVersion() == 3) {
+			if(avgShipmentDay > utilizedShipments) utilizedShipments = avgShipmentDay;			
+			result = calculateUtilizationVersion3(vehicle, actualShipments, utilizedShipments);
 			
-		} else if(logisticsHelper.getUtilizationVersion() == 3) {	
-			result = calculateUtilizationVersion3(vehicle, actualShipments, avgShipmentMonth);
 			
 		} else if(logisticsHelper.getUtilizationVersion() == 4) {
-			result = calculateUtilizationVersion4(vehicle, actualShipments, avgShipmentMonth);
+			if(avgShipmentDay > utilizedShipments) utilizedShipments = avgShipmentDay;	
+			result = calculateUtilizationVersion4(vehicle, actualShipments, utilizedShipments);
 			
+		} else {
+			result = calculateUtilization(actualShipments, utilizedShipments);			
 		}
+		
+		routeUtilizedShipments.put(vehicle.getRoute(), utilizedShipments.intValue());
 		
 		return result;
 	}
@@ -183,14 +203,6 @@ public class ExistingSolutionEvaluator {
 	protected Double calculateUtilizationVersion3(DhlRoute vehicle, Double actualShipments, Double utilizedShipments) {
 		Double utils = 0.0;
 		
-		Double avgShipmentDay = 0.0;
-		
-		if(logisticsHelper.getDailyRouteAreaUtilizationMapping().containsKey(shipmentDate + "_" + vehicle.getRoute())) {
-			avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
-		}		
-		
-		if(avgShipmentDay > utilizedShipments) utilizedShipments = avgShipmentDay;
-		
 		utils = calculateUtilization(actualShipments, utilizedShipments);
 		
 		return utils;
@@ -199,21 +211,11 @@ public class ExistingSolutionEvaluator {
 	protected Double calculateUtilizationVersion4(DhlRoute vehicle, Double actualShipments, Double utilizedShipments) {
 		Double utils = 0.0;
 		
-		Double avgShipmentDay = 0.0;
-		
-		if(logisticsHelper.getDailyRouteAreaUtilizationMapping().containsKey(shipmentDate + "_" + vehicle.getRoute())) {
-			avgShipmentDay = logisticsHelper.getDailyRouteAreaUtilizationMapping().get(shipmentDate + "_" + vehicle.getRoute()).getUtilizedShipments().doubleValue();
-		}		
-		
-		if(avgShipmentDay > utilizedShipments) utilizedShipments = avgShipmentDay;
-		
 		if(actualShipments <= utilizedShipments) {
 			utils = (actualShipments / utilizedShipments) * 100.0;
-		} else {
-			
+		} else {			
 			Double multiply = Math.ceil(actualShipments / utilizedShipments);
-			utils = (1-(((actualShipments-utilizedShipments)*multiply)/utilizedShipments))*100.0;
-			
+			utils = (1-(((actualShipments-utilizedShipments)*multiply)/utilizedShipments))*100.0;			
 		}
 		
 		return utils;
