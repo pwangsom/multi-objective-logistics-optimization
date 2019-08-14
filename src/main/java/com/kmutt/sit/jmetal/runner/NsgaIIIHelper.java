@@ -57,7 +57,4 @@ public class NsgaIIIHelper {
     
     @Value("${nsga.version}")
     private String nsgaVersion;    
-
-    @Value("${nsga.objective.version}")
-    private String objectiveVersion;
 }
