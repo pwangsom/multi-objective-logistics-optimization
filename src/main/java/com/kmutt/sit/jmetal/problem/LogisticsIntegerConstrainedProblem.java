@@ -65,7 +65,7 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 	public void evaluate(IntegerSolution solution) {
 		// TODO Auto-generated method stub
 		logger.debug("");
-		logger.info("Start: Evaluate");
+		logger.debug("Start: Evaluate");
 		
 		utilizationConstraintViolation = 0.0;
 		
@@ -78,18 +78,18 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 		
 		utilizationConstraintViolation = evaluator.getUtilizationConstraintScore();
 		
-		logger.info(String.format("[No.Of Cars: %d, Utilization: %.4f, Fammilarity: %.4f, Constraints Value: %.2f]", 
+		logger.debug(String.format("[No.Of Cars: %d, Utilization: %.4f, Fammilarity: %.4f, Constraints Value: %.2f]", 
 				evaluator.getNoOfCar(), evaluator.getUtilization(), evaluator.getFamiliarity(), utilizationConstraintViolation));
 		
 		logger.debug("");
-		logger.info("Finished: Evaluate");
+		logger.debug("Finished: Evaluate");
 	}
 
 	@Override
 	public void evaluateConstraints(IntegerSolution solution) {
 		// TODO Auto-generated method stub
 		logger.debug("");
-		logger.info("Start: Evaluate Constraints: -> " + utilizationConstraintViolation);
+		logger.debug("Start: Evaluate Constraints: -> " + utilizationConstraintViolation);
 		
 	    double[] constraint = new double[this.getNumberOfConstraints()];
 
@@ -111,7 +111,7 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 	    utilizationConstraintViolation = 0.0;
 	    
 		logger.debug("");
-		logger.info("Finished: Evaluate Constraints");		
+		logger.debug("Finished: Evaluate Constraints");		
 		
 	}
 
