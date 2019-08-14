@@ -108,19 +108,12 @@ public class ExistingSolutionEvaluator {
 		 *  results[3] for areaShipmentPortionEachVehicle;
 		 */
 				
-		results[0] = calculateUtilizationEachVehicle(vehicle, shipmentsEachVehicle.size());		
+		results[0] = calculateUtilizationEachVehicle(vehicle, shipmentsEachVehicle.size());
 		
-		shipmentsEachVehicle.stream().forEach(s -> {
-			
-			List<DhlRoutePostcodeArea> ra = logisticsHelper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vehicle.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
-			List<DhlRouteAreaPortion> rap =  logisticsHelper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vehicle.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
-			
-			if(!ra.isEmpty()) results[1] += 1.0;
-			
-			if(!rap.isEmpty())
-				results[2] += rap.get(0).getAreaPortion().doubleValue();
-			
-		});
+		Double[] familiarity = calculateFamiliarityEachVehicle(vehicle, shipmentsEachVehicle);
+		
+		results[1] = familiarity[0];
+		results[2] = familiarity[1];
 		
 		/*
 		 * String shipmentKeyList = shipmentsEachVehicle.stream().map(s ->
@@ -132,6 +125,31 @@ public class ExistingSolutionEvaluator {
 		
 		return results;
 		
+	}
+	
+	protected Double[] calculateFamiliarityEachVehicle(DhlRoute vehicle, List<DhlShipment> shipmentsEachVehicle) {		
+
+		Double[] results = {0.0, 0.0};
+		
+		Double[] areaResponsiblityRate = {1.0};
+		
+		if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version5")) {					
+			areaResponsiblityRate[0] = 10.0;				
+		} 
+		
+		shipmentsEachVehicle.stream().forEach(s -> {
+			
+			List<DhlRoutePostcodeArea> ra = logisticsHelper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vehicle.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
+			List<DhlRouteAreaPortion> rap =  logisticsHelper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vehicle.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
+
+			if(!ra.isEmpty()) results[0] += areaResponsiblityRate[0];		
+			
+			if(!rap.isEmpty())
+				results[1] += rap.get(0).getAreaPortion().doubleValue();	
+		});
+		
+		
+		return results;		
 	}
 	
 	protected Double calculateUtilizationEachVehicle(DhlRoute vehicle, Integer shipmentSize) {
