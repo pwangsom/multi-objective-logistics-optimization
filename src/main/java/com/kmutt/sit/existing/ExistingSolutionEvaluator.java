@@ -170,6 +170,8 @@ public class ExistingSolutionEvaluator {
 		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version4")) {
 			result = calculateUtilizationVersion4(vehicle, actualShipments, avgShipmentMonth);
 			
+		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version5")) {
+			result = calculateUtilizationVersion4(vehicle, actualShipments, avgShipmentMonth);			
 		}
 		
 		return result;
