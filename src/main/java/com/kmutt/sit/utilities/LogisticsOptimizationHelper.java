@@ -74,8 +74,8 @@ public class LogisticsOptimizationHelper {
     private String outputPath;    
 
     @Getter
-    @Value("${nsga.objective.version}")
-    private String objectiveVersion;
+    @Value("${utilization.version}")
+    private Integer utilizationVersion;
     
     @Getter
     @Value("${area.responsibility.rate}")

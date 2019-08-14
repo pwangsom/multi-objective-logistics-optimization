@@ -33,4 +33,8 @@ public class JavaUtils {
 	public static String removeStringOfList(String string) {
 		return string.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "");
 	}
+	
+	public static String getObjectiveVersionRate(LogisticsOptimizationHelper logisticsHelper) {
+		return String.format("v%dr%.2fh%.2f", logisticsHelper.getUtilizationVersion(), logisticsHelper.getAreaResponsibilityRate(), logisticsHelper.getAreaHistoryRate());
+	}
 }

@@ -34,7 +34,7 @@ public class OptimizationHelper {
 		problem.setNoOfSolutions(noOfSolutions);
 		problem.setSolutionType("generated");
 		problem.setAlgorithm(nsgaIIIHelper.getNsgaVersion());
-		problem.setOptionalParameter(nsgaIIIHelper.getObjectiveVersion() + "_max" + nsgaIIIHelper.getMaxIteration());
+		problem.setOptionalParameter(JavaUtils.getObjectiveVersionRate(nsgaIIIHelper.getLogisticsHelper()) + "_max" + nsgaIIIHelper.getMaxIteration());
 		
 		return nsgaIIIHelper.getLogisticsHelper().saveLogisticsJobProblem(problem);
 	}	
@@ -53,7 +53,8 @@ public class OptimizationHelper {
 	public static String getFileOutputName(NsgaIIIHelper nsgaIIIHelper, String vehicleType, String fileType) {
 		return nsgaIIIHelper.getLogisticsHelper().getOutputPath() + "/" + nsgaIIIHelper.getJobId() 
 				+ "-" + nsgaIIIHelper.getShipmentDate() + "-" + vehicleType + "-" + nsgaIIIHelper.getNsgaVersion()
-				+ "-" + nsgaIIIHelper.getObjectiveVersion() + "-max" + nsgaIIIHelper.getMaxIteration() + "-" + fileType + ".csv";
+				+ "-" + JavaUtils.getObjectiveVersionRate(nsgaIIIHelper.getLogisticsHelper())
+				+ "-max" + nsgaIIIHelper.getMaxIteration() + "-" + fileType + ".csv";
 	}
 	
 	

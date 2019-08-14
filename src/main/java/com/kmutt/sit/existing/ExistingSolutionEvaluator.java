@@ -72,7 +72,7 @@ public class ExistingSolutionEvaluator {
 			areaResponsiblityEachVehicle[0] = results[1];
 			frequentHistoryEachVehicle[0] = results[2];
 			
-			familiarityEachVehicle[0] = ((areaResponsiblityEachVehicle[0] + frequentHistoryEachVehicle[0]) / Double.valueOf(shipmentsOfEachVehicle.size() * 2.0)) * 100.0;
+			familiarityEachVehicle[0] = summarizeFamiliarityEachVehicle(areaResponsiblityEachVehicle[0], frequentHistoryEachVehicle[0], shipmentsOfEachVehicle.size());
 			
 			accumulateUtilization[0] += utilizationEachVehicle[0];
 			accumulateFamiliarity[0] += familiarityEachVehicle[0];		
@@ -127,25 +127,25 @@ public class ExistingSolutionEvaluator {
 		
 	}
 	
+	protected Double summarizeFamiliarityEachVehicle(Double areaResponsiblityEachVehicle, Double frequentHistoryEachVehicle, int noOfShipments) {
+		
+		return ((areaResponsiblityEachVehicle + frequentHistoryEachVehicle) / (Double.valueOf(noOfShipments * logisticsHelper.getAreaResponsibilityRate()) + Double.valueOf(noOfShipments * logisticsHelper.getAreaHistoryRate()))) * 100.0;
+		
+	}
+	
 	protected Double[] calculateFamiliarityEachVehicle(DhlRoute vehicle, List<DhlShipment> shipmentsEachVehicle) {		
 
 		Double[] results = {0.0, 0.0};
-		
-		Double[] areaResponsiblityRate = {1.0};
-		
-		if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version5")) {					
-			areaResponsiblityRate[0] = 10.0;				
-		} 
 		
 		shipmentsEachVehicle.stream().forEach(s -> {
 			
 			List<DhlRoutePostcodeArea> ra = logisticsHelper.getRouteAreaList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vehicle.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
 			List<DhlRouteAreaPortion> rap =  logisticsHelper.getRouteAreaPortionList().stream().filter(row -> row.getRoute().equalsIgnoreCase(vehicle.getRoute()) && row.getAreaCode() == s.getAreaCode()).collect(Collectors.toList());
 
-			if(!ra.isEmpty()) results[0] += areaResponsiblityRate[0];		
+			if(!ra.isEmpty()) results[0] += logisticsHelper.getAreaResponsibilityRate();		
 			
 			if(!rap.isEmpty())
-				results[1] += rap.get(0).getAreaPortion().doubleValue();	
+				results[1] += (rap.get(0).getAreaPortion().doubleValue() * logisticsHelper.getAreaHistoryRate());	
 		});
 		
 		
@@ -153,7 +153,7 @@ public class ExistingSolutionEvaluator {
 	}
 	
 	protected Double calculateUtilizationEachVehicle(DhlRoute vehicle, Integer shipmentSize) {
-        logger.trace("calculateUtilizationEachVehicle: " + logisticsHelper.getObjectiveVersion()); 
+        logger.trace("calculateUtilizationEachVehicle: " + logisticsHelper.getUtilizationVersion()); 
         
 		Double result = 0.0;
 		
@@ -161,17 +161,15 @@ public class ExistingSolutionEvaluator {
 		DhlRouteUtilization routeUtil = logisticsHelper.getRouteUtilizationMapping().get(vehicle.getRoute());
 		Double avgShipmentMonth = routeUtil.getAllAvg().doubleValue();
 		
-		if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version2")) {			
+		if(logisticsHelper.getUtilizationVersion() == 2) {			
 			result = calculateUtilization(actualShipments, avgShipmentMonth); 
 			
-		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version3")) {	
+		} else if(logisticsHelper.getUtilizationVersion() == 3) {	
 			result = calculateUtilizationVersion3(vehicle, actualShipments, avgShipmentMonth);
 			
-		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version4")) {
+		} else if(logisticsHelper.getUtilizationVersion() == 4) {
 			result = calculateUtilizationVersion4(vehicle, actualShipments, avgShipmentMonth);
 			
-		} else if(logisticsHelper.getObjectiveVersion().equalsIgnoreCase("version5")) {
-			result = calculateUtilizationVersion4(vehicle, actualShipments, avgShipmentMonth);			
 		}
 		
 		return result;
