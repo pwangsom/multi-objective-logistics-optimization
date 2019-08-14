@@ -175,10 +175,17 @@ public class OptimizationManager {
 		logger.debug("No. of Available Routes: " + nsgaIIIHelper.getRouteList().size());	
 		
 		logger.debug("Problem Constraint Enabled: " + nsgaIIIHelper.getLogisticsHelper().isProblemConstraintEnabled());
+		logger.debug("Problem Constraint Type: " + nsgaIIIHelper.getLogisticsHelper().getProblemConstraintType());
 		logger.debug("Problem Constraint Allowed: " + nsgaIIIHelper.getLogisticsHelper().getUtilizationConstraintRate());
+		logger.debug("Van Utilization Threshold: " + nsgaIIIHelper.getLogisticsHelper().getVanUtilizationThreshold());
+		logger.debug("Van Familiarity Threshold: " + nsgaIIIHelper.getLogisticsHelper().getVanFamiliarityThreshold());;
+		logger.debug("Bike Utilization Threshold: " + nsgaIIIHelper.getLogisticsHelper().getBikeUtilizationThreshold());
+		logger.debug("Bike Familiarity Threshold: " + nsgaIIIHelper.getLogisticsHelper().getBikeFamiliarityThreshold());
 		logger.debug("Utilization Version: " + nsgaIIIHelper.getLogisticsHelper().getUtilizationVersion());
+		logger.debug("Familiarity Version: " + nsgaIIIHelper.getLogisticsHelper().getFamiliarityVersion());
 		logger.debug("Area Responsibility Rate: " + nsgaIIIHelper.getLogisticsHelper().getAreaResponsibilityRate());
 		logger.debug("Area History Rate: " + nsgaIIIHelper.getLogisticsHelper().getAreaHistoryRate());
+		logger.debug("Area Responsibility Portion: " + nsgaIIIHelper.getLogisticsHelper().getAreaResponsibilityPortion());
 		
 		logger.debug("");
 	}

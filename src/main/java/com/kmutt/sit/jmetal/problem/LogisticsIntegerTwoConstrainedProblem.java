@@ -13,8 +13,8 @@ import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
-public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution> {
-	
+public class LogisticsIntegerTwoConstrainedProblem extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution> {
+
 	/**
 	 * 
 	 */
@@ -23,19 +23,20 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 	public OverallConstraintViolation<IntegerSolution> overallConstraintViolationDegree;
 	public NumberOfViolatedConstraints<IntegerSolution> numberOfViolatedConstraints;
 	
-	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerConstrainedProblem.class);
+	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerTwoConstrainedProblem.class);
 	private NsgaIIIHelper helper;
 	
 	final private int NO_OBJECTIVES = 3;
-	final private int NO_CONSTRAINTS = 1;
+	final private int NO_CONSTRAINTS = 2;
 	
 	private double utilizationConstraintViolation = 0.0;
+	private double familiarityConstraintViolation = 0.0;
 
-	public LogisticsIntegerConstrainedProblem(NsgaIIIHelper helper) {
+	public LogisticsIntegerTwoConstrainedProblem(NsgaIIIHelper helper) {
 		
 		setNumberOfObjectives(NO_OBJECTIVES);
 	    setNumberOfConstraints(NO_CONSTRAINTS);
-		setName("LogisticsIntegerConstrainedProblem");
+		setName("LogisticsIntegerTwoConstrainedProblem");
 		
 		this.helper = helper;
 		
@@ -68,6 +69,7 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 		logger.debug("Start: Evaluate");
 		
 		utilizationConstraintViolation = 0.0;
+		familiarityConstraintViolation = 0.0;
 		
 		GeneratedSolutionEvaluator evaluator = new GeneratedSolutionEvaluator(solution, helper);
 		evaluator.evaluate();
@@ -76,10 +78,11 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 		solution.setObjective(1, evaluator.getUtilization() * -1);
 		solution.setObjective(2, evaluator.getFamiliarity() * -1);
 		
-		utilizationConstraintViolation = evaluator.getUtilizationConstraintScore();
+		utilizationConstraintViolation = evaluator.getUtilizationConstraintValue();
+		familiarityConstraintViolation = evaluator.getFamiliarityConstraintValue();
 		
-		logger.debug(String.format("[No.Of Cars: %d, Utilization: %.4f, Fammilarity: %.4f, Constraints Value: %.2f]", 
-				evaluator.getNoOfCar(), evaluator.getUtilization(), evaluator.getFamiliarity(), utilizationConstraintViolation));
+		logger.debug(String.format("[No.Of Cars: %d, Utilization: %.4f, Familarity: %.4f, Utilization Cons: %.2f, Familiarity Cons: %.2f]", 
+				evaluator.getNoOfCar(), evaluator.getUtilization(), evaluator.getFamiliarity(), utilizationConstraintViolation, familiarityConstraintViolation));
 		
 		logger.debug("");
 		logger.debug("Finished: Evaluate");
@@ -89,11 +92,12 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 	public void evaluateConstraints(IntegerSolution solution) {
 		// TODO Auto-generated method stub
 		logger.debug("");
-		logger.debug("Start: Evaluate Constraints: -> " + utilizationConstraintViolation);
+		logger.debug("Start: Evaluate Constraints: -> " + utilizationConstraintViolation + ", " + familiarityConstraintViolation);
 		
 	    double[] constraint = new double[this.getNumberOfConstraints()];
 
 	    constraint[0] = utilizationConstraintViolation;
+	    constraint[1] = familiarityConstraintViolation;
 
 	    double overallConstraintViolation = 0.0;	    
 	    int violatedConstraints = 0;
@@ -109,10 +113,11 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 	    numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
 	    
 	    utilizationConstraintViolation = 0.0;
+		familiarityConstraintViolation = 0.0;
 	    
 		logger.debug("");
 		logger.debug("Finished: Evaluate Constraints");		
 		
 	}
-
+	
 }

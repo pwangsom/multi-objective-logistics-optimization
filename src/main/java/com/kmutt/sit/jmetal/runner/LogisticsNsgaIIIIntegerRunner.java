@@ -21,6 +21,7 @@ import org.uma.jmetal.util.fileoutput.impl.DefaultFileOutputContext;
 import com.kmutt.sit.jmetal.algorithm.GeneralNsgaIIIIntegerSolutionBuilder;
 import com.kmutt.sit.jmetal.problem.LogisticsIntegerConstrainedProblem;
 import com.kmutt.sit.jmetal.problem.LogisticsIntegerProblem;
+import com.kmutt.sit.jmetal.problem.LogisticsIntegerTwoConstrainedProblem;
 import com.kmutt.sit.utilities.JavaUtils;
 
 import lombok.Getter;
@@ -51,7 +52,11 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	public void setRunnerParameter() {
 		
 		if(helper.getLogisticsHelper().isProblemConstraintEnabled()) {
-			problem = new LogisticsIntegerConstrainedProblem(this.helper);
+			if(helper.getLogisticsHelper().getProblemConstraintType() == 2) {
+				problem = new LogisticsIntegerTwoConstrainedProblem(this.helper);				
+			} else {
+				problem = new LogisticsIntegerConstrainedProblem(this.helper);		
+			}
 		} else {
 			problem = new LogisticsIntegerProblem(this.helper);
 		}

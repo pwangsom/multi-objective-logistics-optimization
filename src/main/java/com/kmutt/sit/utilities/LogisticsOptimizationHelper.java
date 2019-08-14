@@ -79,11 +79,19 @@ public class LogisticsOptimizationHelper {
 
     @Getter
     @Value("${utilization.version}")
-    private Integer utilizationVersion;
+    private Integer utilizationVersion;    
+
+    @Getter
+    @Value("${familiarity.version}")
+    private Integer familiarityVersion;
     
     @Getter
     @Value("${nsga.problem.constraint.enabled}")
-    private boolean isProblemConstraintEnabled; 
+    private boolean isProblemConstraintEnabled;    
+
+    @Getter
+    @Value("${nsga.problem.constraint.type}")
+    private Integer problemConstraintType;
 
     @Getter
     @Value("${utilization.constraint.allowed}")
@@ -91,7 +99,27 @@ public class LogisticsOptimizationHelper {
     
     @Getter
     @Value("${area.responsibility.rate}")
-    private Double areaResponsibilityRate;
+    private Double areaResponsibilityRate;    
+
+    @Getter
+    @Value("${area.responsibility.portion}")
+    private Double areaResponsibilityPortion;  
+    
+    @Getter
+    @Value("${van.utilization.threshold}")
+    private Double vanUtilizationThreshold;
+    
+    @Getter
+    @Value("${bike.utilization.threshold}")
+    private Double bikeUtilizationThreshold;
+    
+    @Getter
+    @Value("${van.familiarity.threshold}")
+    private Double vanFamiliarityThreshold;
+
+    @Getter
+    @Value("${bike.familiarity.threshold}")
+    private Double bikeFamiliarityThreshold;
     
     @Getter
     @Value("${area.history.rate}")

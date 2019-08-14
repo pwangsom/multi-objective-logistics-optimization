@@ -38,6 +38,11 @@ public class ExistingSolutionEvaluator {
 	protected Map<String, Integer> routeActualShipments;
 	protected Map<String, Integer> routeUtilizedShipments;
 	
+	@Getter
+	protected Double utilizationConstraintValue = 0.0;
+	@Getter
+	protected Double familiarityConstraintValue = 0.0;
+	
 	public ExistingSolutionEvaluator(LogisticsOptimizationHelper helper, String shipmentDate, List<DhlShipment> shipmentList) {
 		this.logisticsHelper = helper;
 		this.shipmentDate = shipmentDate;
@@ -71,31 +76,45 @@ public class ExistingSolutionEvaluator {
 			
 			Double[] results = computeUtilizationFamiliarityEachVehicle(vid, shipmentsOfEachVehicle);
 			
-			Double[] utilizationEachVehicle = {0.0};
-			Double[] areaResponsiblityEachVehicle = {0.0};
-			Double[] frequentHistoryEachVehicle = {0.0};
-			Double[] familiarityEachVehicle = {0.0};
-			
-			utilizationEachVehicle[0] = results[0];
-			areaResponsiblityEachVehicle[0] = results[1];
-			frequentHistoryEachVehicle[0] = results[2];
-			
-			familiarityEachVehicle[0] = summarizeFamiliarityEachVehicle(areaResponsiblityEachVehicle[0], frequentHistoryEachVehicle[0], shipmentsOfEachVehicle.size());
-			
-			accumulateUtilization[0] += utilizationEachVehicle[0];
-			accumulateFamiliarity[0] += familiarityEachVehicle[0];		
-			
+			accumulateUtilization[0] += results[0];
+			accumulateFamiliarity[0] += results[1];	
 
-			logger.trace(String.format("%d, %s: having %d shipments -> %.4f, %.4f {%.4f, %.4f}", vid.getChromosomeId(), vid.getRoute(),
-					shipmentsOfEachVehicle.size(), utilizationEachVehicle[0], familiarityEachVehicle[0], areaResponsiblityEachVehicle[0], frequentHistoryEachVehicle[0]));
+			logger.trace(String.format("%d, %s: having %d shipments -> %.4f, %.4f",
+					vid.getChromosomeId(), vid.getRoute(),
+					shipmentsOfEachVehicle.size(), results[0], results[1]));
 			
 			logger.trace("");
 		});
 		
 		utilization = accumulateUtilization[0] / Double.valueOf(vehicleList.size());
-		familiarity = accumulateFamiliarity[0] / Double.valueOf(vehicleList.size());
+		familiarity = accumulateFamiliarity[0] / Double.valueOf(vehicleList.size());		
+		
+		Double[] resultCons = evaluateConstraints(utilization, familiarity, vehicleList.get(0));
+		
+		utilizationConstraintValue = resultCons[0];
+		familiarityConstraintValue = resultCons[1];
 
         logger.debug("assessUtilizationFamiliarity: finished..");     
+	}
+	
+	protected Double[] evaluateConstraints(Double utilzation, Double familiarity, DhlRoute route) {
+		Double[] results = {0.0, 0.0};
+		
+		Double utilizationThreshold = 0.0;
+		Double familiarityThreshold = 0.0;
+		
+		if(route.getVehicleType().equalsIgnoreCase("Bike")) {
+			utilizationThreshold = logisticsHelper.getBikeUtilizationThreshold();
+			familiarityThreshold = logisticsHelper.getBikeFamiliarityThreshold();
+		} else {
+			utilizationThreshold = logisticsHelper.getVanUtilizationThreshold();
+			familiarityThreshold = logisticsHelper.getVanFamiliarityThreshold();
+		}
+		
+		if(Double.compare(utilzation, utilizationThreshold) < 0) results[0] = utilzation - utilizationThreshold;
+		if(Double.compare(familiarity, familiarityThreshold) < 0) results[1] = familiarity - familiarityThreshold;
+		
+		return results;
 	}
 	
 	protected List<DhlShipment> getShipmentsOfEachVehicle(DhlRoute vehicle) {
@@ -105,40 +124,39 @@ public class ExistingSolutionEvaluator {
 	
 	protected Double[] computeUtilizationFamiliarityEachVehicle(DhlRoute vehicle, List<DhlShipment> shipmentsEachVehicle) {
 		
-		// Double[] results = {0.0, 0.0, 0.0, 0.0};
-		
-		Double[] results = {0.0, 0.0, 0.0};
-		
-		/*
-		 *  results[0] for utilizationEachVehicle;
-		 *  results[1] for areaResponsiblityEachVehicle;
-		 *  results[2] for frequentHistoryEachVehicle;
-		 *  results[3] for areaShipmentPortionEachVehicle;
-		 */
+		Double[] results = {0.0, 0.0};
 				
 		results[0] = calculateUtilizationEachVehicle(vehicle, shipmentsEachVehicle.size());
 		
 		Double[] familiarity = calculateFamiliarityEachVehicle(vehicle, shipmentsEachVehicle);
 		
-		results[1] = familiarity[0];
-		results[2] = familiarity[1];
-		
-		/*
-		 * String shipmentKeyList = shipmentsEachVehicle.stream().map(s ->
-		 * s.getShipmentKey()).collect(Collectors.toList()).toString(); shipmentKeyList
-		 * = shipmentKeyList.replace(" ", "").replace("[", "").replace("]", "");
-		 * results[3] += logisticsHelper.getCalculateAreaPortion(shipmentDate,
-		 * shipmentKeyList).doubleValue();
-		 */			
+		if(logisticsHelper.getFamiliarityVersion() == 2) {
+			results[1] = calculateFamiliarityVersion2(familiarity[0], familiarity[1], shipmentsEachVehicle.size());
+			
+		} else { // default version 1
+			results[1] = calculateFamiliarityDefault(familiarity[0], familiarity[1], shipmentsEachVehicle.size());			
+		}
 		
 		return results;
 		
 	}
 	
-	protected Double summarizeFamiliarityEachVehicle(Double areaResponsiblityEachVehicle, Double frequentHistoryEachVehicle, int noOfShipments) {
+	protected Double calculateFamiliarityDefault(Double areaResponsiblityEachVehicle, Double frequentHistoryEachVehicle, int noOfShipments) {		
+		return ((areaResponsiblityEachVehicle + frequentHistoryEachVehicle) / (Double.valueOf(noOfShipments * logisticsHelper.getAreaResponsibilityRate()) + Double.valueOf(noOfShipments * logisticsHelper.getAreaHistoryRate()))) * 100.0;	
+	}
+	
+	protected Double calculateFamiliarityVersion2(Double areaResponsiblityEachVehicle, Double frequentHistoryEachVehicle, int noOfShipments) {
 		
-		return ((areaResponsiblityEachVehicle + frequentHistoryEachVehicle) / (Double.valueOf(noOfShipments * logisticsHelper.getAreaResponsibilityRate()) + Double.valueOf(noOfShipments * logisticsHelper.getAreaHistoryRate()))) * 100.0;
+		Double areaResponsiblityPortion = logisticsHelper.getAreaResponsibilityPortion();
+		Double areaHistoryPortion = 1 - areaResponsiblityPortion;
 		
+		areaResponsiblityEachVehicle /= Double.valueOf(noOfShipments * logisticsHelper.getAreaResponsibilityRate());
+		frequentHistoryEachVehicle /= Double.valueOf(noOfShipments * logisticsHelper.getAreaHistoryRate());
+		
+		areaResponsiblityEachVehicle *= areaResponsiblityPortion;
+		frequentHistoryEachVehicle *= areaHistoryPortion;
+		
+		return (areaResponsiblityEachVehicle + frequentHistoryEachVehicle) * 100.0;	
 	}
 	
 	protected Double[] calculateFamiliarityEachVehicle(DhlRoute vehicle, List<DhlShipment> shipmentsEachVehicle) {		
@@ -161,7 +179,7 @@ public class ExistingSolutionEvaluator {
 	}
 	
 	protected Double calculateUtilizationEachVehicle(DhlRoute vehicle, Integer shipmentSize) {
-        logger.debug("calculateUtilizationEachVehicle: " + logisticsHelper.getUtilizationVersion()); 
+        logger.trace("calculateUtilizationEachVehicle: " + logisticsHelper.getUtilizationVersion()); 
         
 		Double result = 0.0;
 		
@@ -187,7 +205,7 @@ public class ExistingSolutionEvaluator {
 			result = calculateUtilizationVersion4(vehicle, actualShipments, utilizedShipments);
 			
 		} else {
-			result = calculateUtilization(actualShipments, utilizedShipments);			
+			result = calculateUtilizationDefault(actualShipments, utilizedShipments);			
 		}
 		
 		routeUtilizedShipments.put(vehicle.getRoute(), utilizedShipments.intValue());
@@ -196,14 +214,14 @@ public class ExistingSolutionEvaluator {
 	}
 	
 	
-	protected Double calculateUtilization(Double actualShipments, Double utilizedShipments) {
+	protected Double calculateUtilizationDefault(Double actualShipments, Double utilizedShipments) {
 		return (1-(Math.abs(actualShipments-utilizedShipments)/utilizedShipments))*100.0;
 	}
 	
 	protected Double calculateUtilizationVersion3(DhlRoute vehicle, Double actualShipments, Double utilizedShipments) {
 		Double utils = 0.0;
 		
-		utils = calculateUtilization(actualShipments, utilizedShipments);
+		utils = calculateUtilizationDefault(actualShipments, utilizedShipments);
 		
 		return utils;
 	}

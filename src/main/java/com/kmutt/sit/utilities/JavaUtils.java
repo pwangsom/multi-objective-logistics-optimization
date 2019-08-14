@@ -35,6 +35,7 @@ public class JavaUtils {
 	}
 	
 	public static String getObjectiveVersionRate(LogisticsOptimizationHelper logisticsHelper) {
-		return String.format("v%dr%.2fh%.2f", logisticsHelper.getUtilizationVersion(), logisticsHelper.getAreaResponsibilityRate(), logisticsHelper.getAreaHistoryRate());
+		return String.format("uv%duf%dp%.2fr%.0fh%.0f", logisticsHelper.getUtilizationVersion(), logisticsHelper.getFamiliarityVersion(),
+				logisticsHelper.getAreaResponsibilityPortion(), logisticsHelper.getAreaResponsibilityRate(), logisticsHelper.getAreaHistoryRate());
 	}
 }
