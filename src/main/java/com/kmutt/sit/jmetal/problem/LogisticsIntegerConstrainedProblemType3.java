@@ -13,7 +13,7 @@ import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
-public class LogisticsIntegerTwoConstrainedProblem extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution> {
+public class LogisticsIntegerConstrainedProblemType3 extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution> {
 
 	/**
 	 * 
@@ -23,7 +23,7 @@ public class LogisticsIntegerTwoConstrainedProblem extends AbstractIntegerProble
 	public OverallConstraintViolation<IntegerSolution> overallConstraintViolationDegree;
 	public NumberOfViolatedConstraints<IntegerSolution> numberOfViolatedConstraints;
 	
-	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerTwoConstrainedProblem.class);
+	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerConstrainedProblemType3.class);
 	private NsgaIIIHelper helper;
 	
 	final private int NO_OBJECTIVES = 3;
@@ -32,7 +32,7 @@ public class LogisticsIntegerTwoConstrainedProblem extends AbstractIntegerProble
 	private double utilizationConstraintViolation = 0.0;
 	private double familiarityConstraintViolation = 0.0;
 
-	public LogisticsIntegerTwoConstrainedProblem(NsgaIIIHelper helper) {
+	public LogisticsIntegerConstrainedProblemType3(NsgaIIIHelper helper) {
 		
 		setNumberOfObjectives(NO_OBJECTIVES);
 	    setNumberOfConstraints(NO_CONSTRAINTS);
@@ -78,7 +78,7 @@ public class LogisticsIntegerTwoConstrainedProblem extends AbstractIntegerProble
 		solution.setObjective(1, evaluator.getUtilization() * -1);
 		solution.setObjective(2, evaluator.getFamiliarity() * -1);
 		
-		utilizationConstraintViolation = evaluator.getUtilizationConstraintValue();
+		utilizationConstraintViolation = evaluator.getUtilizationConstraintScore();
 		familiarityConstraintViolation = evaluator.getFamiliarityConstraintValue();
 		
 		logger.debug(String.format("[No.Of Cars: %d, Utilization: %.4f, Familarity: %.4f, Utilization Cons: %.2f, Familiarity Cons: %.2f]", 
@@ -118,6 +118,7 @@ public class LogisticsIntegerTwoConstrainedProblem extends AbstractIntegerProble
 		logger.debug("");
 		logger.debug("Finished: Evaluate Constraints");		
 		
-	}
+	}	
+	
 	
 }

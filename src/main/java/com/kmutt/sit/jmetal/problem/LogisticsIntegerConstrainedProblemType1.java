@@ -13,7 +13,7 @@ import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
-public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution> {
+public class LogisticsIntegerConstrainedProblemType1 extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution> {
 	
 	/**
 	 * 
@@ -23,7 +23,7 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 	public OverallConstraintViolation<IntegerSolution> overallConstraintViolationDegree;
 	public NumberOfViolatedConstraints<IntegerSolution> numberOfViolatedConstraints;
 	
-	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerConstrainedProblem.class);
+	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerConstrainedProblemType1.class);
 	private NsgaIIIHelper helper;
 	
 	final private int NO_OBJECTIVES = 3;
@@ -31,7 +31,7 @@ public class LogisticsIntegerConstrainedProblem extends AbstractIntegerProblem i
 	
 	private double utilizationConstraintViolation = 0.0;
 
-	public LogisticsIntegerConstrainedProblem(NsgaIIIHelper helper) {
+	public LogisticsIntegerConstrainedProblemType1(NsgaIIIHelper helper) {
 		
 		setNumberOfObjectives(NO_OBJECTIVES);
 	    setNumberOfConstraints(NO_CONSTRAINTS);
