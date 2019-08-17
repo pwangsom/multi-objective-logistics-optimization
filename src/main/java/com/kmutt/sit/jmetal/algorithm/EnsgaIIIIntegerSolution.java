@@ -8,22 +8,21 @@ import org.uma.jmetal.solution.IntegerSolution;
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
 @SuppressWarnings("serial")
-public abstract class NsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
+public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 
-	private Logger logger = LoggerFactory.getLogger(NsgaIIIIntegerSolution.class);
+	private Logger logger = LoggerFactory.getLogger(EnsgaIIIIntegerSolution.class);
 	
-	public NsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {
+	public EnsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {
 		super(builder, helper);
 	}
 	
 	@Override
 	public String getName() {
-		return "NSGA-III for Integer Solution";
+		return "E-NSGA-III for Integer Solution";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Nondominated Sorting Genetic Algorithm version III for Integer Solution";
+		return "Extreme Nondominated Sorting Genetic Algorithm version III for Integer Solution";
 	}
-
 }
