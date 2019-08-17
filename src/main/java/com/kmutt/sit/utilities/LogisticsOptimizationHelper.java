@@ -167,7 +167,10 @@ public class LogisticsOptimizationHelper {
     private Map<String, DhlDailyRouteAreaUtilization> dailyRouteAreaUtilizationMapping;    
 
     @Getter
-    private Map<String, Integer> routeAreasMapping; 
+    private Map<String, Integer> routeAreasMapping;
+    
+    @Getter
+    private Map<String, List<Integer>> areaChromosomeMapping;
     
     private List<String> shipmentDateList;
     
@@ -186,6 +189,7 @@ public class LogisticsOptimizationHelper {
     	initialRouteUtilizationMapping();
     	initialDailyRouteAreaUtilizationMapping();
     	initialRouteAreasMapping();
+    	initialAreaChromosomeMapping();
     }
     
     public List<String> retrieveShipmentDateList(){
@@ -313,6 +317,27 @@ public class LogisticsOptimizationHelper {
     	routes.stream().forEach(r -> {
     		routeAreasMapping.put(r.getRoute(), r.getAreas());
     	});
+    }
+        
+    private void initialAreaChromosomeMapping() {
+    	areaChromosomeMapping = new HashMap<String, List<Integer>>();
+    	
+    	this.routeAreaList.stream().forEach(r -> {
+    		String key = r.getVehicleType() + "_" + r.getAreaCode();
+    		
+    		if(!areaChromosomeMapping.containsKey(key)) {
+    			List<Integer> list = new ArrayList<Integer>();
+    			list.add(r.getChromosomeId());
+    			areaChromosomeMapping.put(key, list);
+    		} else {
+    			areaChromosomeMapping.get(key).add(r.getChromosomeId());
+    		}
+    	});
+    	
+    	areaChromosomeMapping.forEach((k, v) ->{
+    		Collections.sort(v);
+    	});
+    	
     }
     
     public Integer getCountByActDtAndPudRte(String actDt, String pudRte) {

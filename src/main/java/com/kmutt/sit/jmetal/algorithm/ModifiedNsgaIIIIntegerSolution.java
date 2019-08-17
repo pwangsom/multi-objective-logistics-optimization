@@ -3,8 +3,6 @@ package com.kmutt.sit.jmetal.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.algorithm.multiobjective.nsgaiii.util.ReferencePoint;
 import org.uma.jmetal.solution.IntegerSolution;
@@ -14,8 +12,6 @@ import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
 @SuppressWarnings("serial")
 public class ModifiedNsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
-	
-	private Logger logger = LoggerFactory.getLogger(ModifiedNsgaIIIIntegerSolution.class);
 	
 	public ModifiedNsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {
 		super(builder, helper);
