@@ -11,7 +11,9 @@ import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.solution.IntegerSolution;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
-import com.kmutt.sit.jmetal.problem.LogisticsIntegerConstrainedProblemType1;
+import com.kmutt.sit.jmetal.problem.ExtremeSolution;
+import com.kmutt.sit.jmetal.problem.GenericLogisticsIntegerProblem;
+import com.kmutt.sit.jmetal.problem.Type1ContrainedLogisticsIntegerProblem;
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
@@ -39,19 +41,16 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 		int startIdx = 4;
 		
 		for (int i = startIdx; i < getMaxPopulationSize(); i++) {
-			IntegerSolution newIndividual = getProblem().createSolution();
-
-			setAttributeOfLogisticsIntegerConstrainedProblemType1(newIndividual, i);
-			
+			IntegerSolution newIndividual = getProblem().createSolution();			
 			population.add(newIndividual);
 		}
 		
 		return population;
 	}
 	
-	private void setAttributeOfLogisticsIntegerConstrainedProblemType1(IntegerSolution solution, Integer value) {
-		if(this.problem instanceof LogisticsIntegerConstrainedProblemType1) {
-			((LogisticsIntegerConstrainedProblemType1) this.problem).setAttribute(solution, value);
+	private void setAttributeOfGenericLogisticsIntegerProblem(IntegerSolution solution, Integer value) {
+		if(this.problem instanceof Type1ContrainedLogisticsIntegerProblem) {
+			((GenericLogisticsIntegerProblem) this.problem).setAttribute(solution, new ExtremeSolution(value));
 		}
 	}
 	
@@ -64,7 +63,7 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			extreme.setVariableValue(i, value);
 		}
 		
-		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 0);
+		setAttributeOfGenericLogisticsIntegerProblem(extreme, 0);
 		
 		return extreme;
 	}
@@ -101,7 +100,7 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			}			
 		}
 		
-		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 1);
+		setAttributeOfGenericLogisticsIntegerProblem(extreme, 1);
 		
 		return extreme;
 	}
@@ -120,7 +119,7 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			extreme.setVariableValue(i, chromosomeList.get(value));
 		}
 
-		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 2);
+		setAttributeOfGenericLogisticsIntegerProblem(extreme, 2);
 		
 		return extreme;
 	}
@@ -180,7 +179,7 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			i[0]++;
 		});
 		
-		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 3);
+		setAttributeOfGenericLogisticsIntegerProblem(extreme, 3);
 		
 		return extreme;
 	}

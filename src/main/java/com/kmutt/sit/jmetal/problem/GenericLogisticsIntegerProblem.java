@@ -7,16 +7,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uma.jmetal.problem.impl.AbstractIntegerProblem;
 import org.uma.jmetal.solution.IntegerSolution;
+import org.uma.jmetal.util.solutionattribute.SolutionAttribute;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
+import com.kmutt.sit.utilities.JavaUtils;
 
 @SuppressWarnings("serial")
-public class GenericLogisticsIntegerProblem extends AbstractIntegerProblem {
+public class GenericLogisticsIntegerProblem extends AbstractIntegerProblem implements SolutionAttribute<IntegerSolution, ExtremeSolution> {
 	
 	private Logger logger = LoggerFactory.getLogger(GenericLogisticsIntegerProblem.class);
-	private NsgaIIIHelper helper;
+	protected NsgaIIIHelper helper;
 	
-	final private int NO_OBJECTIVES = 3;
+	final protected int NO_OBJECTIVES = 3;
+	final protected int NO_EXTREME_SOLUTIONS = 4;
 	
 	public GenericLogisticsIntegerProblem(NsgaIIIHelper helper) {
 		
@@ -58,11 +61,39 @@ public class GenericLogisticsIntegerProblem extends AbstractIntegerProblem {
 		solution.setObjective(1, evaluator.getUtilization() * -1);
 		solution.setObjective(2, evaluator.getFamiliarity() * -1);
 		
-		logger.debug(String.format("[No.Of Cars: %d, Utilization: %.4f, Fammilarity: %.4f]", 
-				evaluator.getNoOfCar(), evaluator.getUtilization(), evaluator.getFamiliarity()));
+		displayExtremeSolutions(solution);
+		
+		logger.debug(String.format("[No.Of Cars: %.0f, Utilization: %.4f, Fammilarity: %.4f]", 
+				 solution.getObjective(0), solution.getObjective(1), solution.getObjective(2)));
 		
 		logger.debug("");
 		logger.debug("Finished: Evaluate");
+	}
+	
+	protected void displayExtremeSolutions(IntegerSolution solution) {
+	    if(!JavaUtils.isNull(getAttribute(solution)) && getAttribute(solution).getExtremeId() < NO_EXTREME_SOLUTIONS) {
+			logger.info(String.format("[Extreme: %d, No.Of Cars: %.0f, Utilization: %.4f, Fammilarity: %.4f]", 
+					getAttribute(solution).getExtremeId(), solution.getObjective(0), solution.getObjective(1), solution.getObjective(2)));
+			logger.debug("");
+	    }
+	}
+
+	@Override
+	public void setAttribute(IntegerSolution solution, ExtremeSolution value) {
+		// TODO Auto-generated method stub
+		solution.setAttribute(getAttributeIdentifier(), value);
+	}
+
+	@Override
+	public ExtremeSolution getAttribute(IntegerSolution solution) {
+		// TODO Auto-generated method stub
+		return (ExtremeSolution) solution.getAttribute(getAttributeIdentifier());
+	}
+
+	@Override
+	public Object getAttributeIdentifier() {
+		// TODO Auto-generated method stub
+		return this.getClass();
 	}
 
 }
