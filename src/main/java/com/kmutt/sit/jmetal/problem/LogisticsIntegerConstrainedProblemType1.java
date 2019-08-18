@@ -8,12 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.uma.jmetal.problem.ConstrainedProblem;
 import org.uma.jmetal.problem.impl.AbstractIntegerProblem;
 import org.uma.jmetal.solution.IntegerSolution;
+import org.uma.jmetal.util.solutionattribute.SolutionAttribute;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
-public class LogisticsIntegerConstrainedProblemType1 extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution> {
+public class LogisticsIntegerConstrainedProblemType1 extends AbstractIntegerProblem implements ConstrainedProblem<IntegerSolution>, SolutionAttribute<IntegerSolution, Integer> {
 	
 	/**
 	 * 
@@ -108,11 +109,36 @@ public class LogisticsIntegerConstrainedProblemType1 extends AbstractIntegerProb
 	    overallConstraintViolationDegree.setAttribute(solution, overallConstraintViolation);
 	    numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
 	    
-	    utilizationConstraintViolation = 0.0;
+	    if(getAttribute(solution) < 4) {
+	    	logger.debug("Extreme Solutions: " + getAttribute(solution));
+			logger.info(String.format("[No.Of Cars: %.0f, Utilization: %.4f, Fammilarity: %.4f, Constraints Value: %.2f]", 
+					solution.getObjective(0), solution.getObjective(1), solution.getObjective(2), utilizationConstraintViolation));
+			logger.debug("");
+	    }
 	    
+	    utilizationConstraintViolation = 0.0;
+	    	    
 		logger.debug("");
 		logger.debug("Finished: Evaluate Constraints");		
 		
+	}
+
+	@Override
+	public void setAttribute(IntegerSolution solution, Integer value) {
+		// TODO Auto-generated method stub
+		solution.setAttribute(getAttributeIdentifier(), value);
+	}
+
+	@Override
+	public Integer getAttribute(IntegerSolution solution) {
+		// TODO Auto-generated method stub
+		return (Integer) solution.getAttribute(getAttributeIdentifier());
+	}
+
+	@Override
+	public Object getAttributeIdentifier() {
+		// TODO Auto-generated method stub
+		return this.getClass();
 	}
 
 }

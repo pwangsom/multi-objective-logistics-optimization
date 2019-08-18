@@ -92,7 +92,6 @@ public class OptimizationHelper {
         // logger.info("Logistics Job Result Details are saved...");
 	}
 		
-	@SuppressWarnings("unused")
 	private static LogisticsJobResultDetail getLogisticsJobResultDetail(NsgaIIIHelper nsgaIIIHelper, Integer problemId, Integer solutionIndex, IntegerSolution solution, String solutionType) {
 					
 		LogisticsJobResultDetail detail = new LogisticsJobResultDetail();
@@ -108,7 +107,6 @@ public class OptimizationHelper {
 		return detail;
 	}
 	
-	@SuppressWarnings("unused")
 	private static IntegerSolution[] getBestEachObjective(List<IntegerSolution> paretoSet) {
 		
 		IntegerSolution[] results = new IntegerSolution[4];

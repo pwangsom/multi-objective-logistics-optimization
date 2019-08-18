@@ -11,12 +11,12 @@ import org.uma.jmetal.solution.IntegerSolution;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
-public class GeneralNsgaIIIIntegerSolutionBuilder {
+public class GenericNsgaIIIIntegerSolutionBuilder {
 	
 	private NSGAIIIBuilder<IntegerSolution> builder;
 	private NsgaIIIHelper helper;
 
-	public GeneralNsgaIIIIntegerSolutionBuilder(Problem<IntegerSolution> problem, CrossoverOperator<IntegerSolution> crossover, MutationOperator<IntegerSolution> mutation,
+	public GenericNsgaIIIIntegerSolutionBuilder(Problem<IntegerSolution> problem, CrossoverOperator<IntegerSolution> crossover, MutationOperator<IntegerSolution> mutation,
 			SelectionOperator<List<IntegerSolution>, IntegerSolution> selection, int maxIterations, NsgaIIIHelper helper) {
 		
 		builder = new NSGAIIIBuilder<IntegerSolution>(problem)
@@ -44,6 +44,19 @@ public class GeneralNsgaIIIIntegerSolutionBuilder {
 	public ModifiedNsgaIIIIntegerSolution buildModifiedNsgaIIIIntegerSolution() {
 		
 		ModifiedNsgaIIIIntegerSolution algorithm = new ModifiedNsgaIIIIntegerSolution(builder, helper) {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+		};
+		
+		return algorithm;
+	}
+	
+	public EnsgaIIIIntegerSolution buildEnsgaIIIIntegerSolution() {
+		
+		EnsgaIIIIntegerSolution algorithm = new EnsgaIIIIntegerSolution(builder, helper) {
 
 			/**
 			 * 

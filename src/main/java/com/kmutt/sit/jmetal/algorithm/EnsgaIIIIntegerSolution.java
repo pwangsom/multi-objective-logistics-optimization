@@ -1,6 +1,7 @@
 package com.kmutt.sit.jmetal.algorithm;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.solution.IntegerSolution;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
+import com.kmutt.sit.jmetal.problem.LogisticsIntegerConstrainedProblemType1;
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
@@ -38,10 +40,19 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 		
 		for (int i = startIdx; i < getMaxPopulationSize(); i++) {
 			IntegerSolution newIndividual = getProblem().createSolution();
+
+			setAttributeOfLogisticsIntegerConstrainedProblemType1(newIndividual, i);
+			
 			population.add(newIndividual);
 		}
 		
 		return population;
+	}
+	
+	private void setAttributeOfLogisticsIntegerConstrainedProblemType1(IntegerSolution solution, Integer value) {
+		if(this.problem instanceof LogisticsIntegerConstrainedProblemType1) {
+			((LogisticsIntegerConstrainedProblemType1) this.problem).setAttribute(solution, value);
+		}
 	}
 	
 	protected IntegerSolution getFirstExtremeSolution() {
@@ -52,6 +63,8 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 		for(int i = 0; i < getProblem().getNumberOfVariables(); i++) {
 			extreme.setVariableValue(i, value);
 		}
+		
+		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 0);
 		
 		return extreme;
 	}
@@ -70,7 +83,7 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			
 			Integer[] vehicleChromosomeId = {randomGenerator.nextInt(extreme.getLowerBound(0), extreme.getUpperBound(0))};
 			
-			while(!assignedVehicle.contains(vehicleChromosomeId[0])) {
+			while(assignedVehicle.contains(vehicleChromosomeId[0])) {
 				vehicleChromosomeId[0] = randomGenerator.nextInt(extreme.getLowerBound(0), extreme.getUpperBound(0));
 			}
 			
@@ -88,6 +101,8 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			}			
 		}
 		
+		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 1);
+		
 		return extreme;
 	}
 	
@@ -100,10 +115,12 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			Integer areaCode = this.helper.getShipmentList().get(i).getAreaCode();
 			List<Integer> chromosomeList = this.helper.getLogisticsHelper().getAreaChromosomeMapping().get(this.helper.getVehicleType() + "_" + areaCode);
 			
-			Integer value = randomGenerator.nextInt(0, chromosomeList.size());
+			Integer value = randomGenerator.nextInt(0, chromosomeList.size()-1);
 			
 			extreme.setVariableValue(i, chromosomeList.get(value));
 		}
+
+		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 2);
 		
 		return extreme;
 	}
@@ -122,7 +139,7 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			
 			Integer areaCode = s.getAreaCode();			
 			List<Integer> chromosomeList = this.helper.getLogisticsHelper().getAreaChromosomeMapping().get(this.helper.getVehicleType() + "_" + areaCode);
-			Integer[] value = { randomGenerator.nextInt(0, chromosomeList.size())};
+			Integer[] value = {randomGenerator.nextInt(0, chromosomeList.size() - 1)};
 			Integer[] chromosomeId = {chromosomeList.get(value[0])};
 			
 			List<RouteCapacity> routeInfos;
@@ -134,10 +151,16 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 				
 				if(routeC.getCurrentShipments() < routeC.getUtilizedShipments()) {
 					routeC.setCurrentShipments(routeC.getCurrentShipments() + 1);
-				} else {					
-					while(!routeInfos.stream().map(m -> m.getChromosomeId()).collect(Collectors.toList()).contains(chromosomeId[0])) {
-						value[0] = randomGenerator.nextInt(0, chromosomeList.size());
-						chromosomeId[0] = chromosomeList.get(value[0]);
+				} else {
+					
+					if(routeInfos.size() < chromosomeList.size()) {						
+						while(routeInfos.stream().map(m -> m.getChromosomeId()).collect(Collectors.toList()).contains(chromosomeId[0])) {
+							value[0] = randomGenerator.nextInt(0, chromosomeList.size() - 1);
+							chromosomeId[0] = chromosomeList.get(value[0]);
+						}
+					} else {
+						routeInfos.stream().sorted(Comparator.comparingInt(RouteCapacity::getCurrentShipments));
+						chromosomeId[0] = routeInfos.get(0).getChromosomeId();
 					}
 							
 					routeC =createNewRoute(routes, chromosomeId[0]);	
@@ -156,6 +179,8 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			
 			i[0]++;
 		});
+		
+		setAttributeOfLogisticsIntegerConstrainedProblemType1(extreme, 3);
 		
 		return extreme;
 	}

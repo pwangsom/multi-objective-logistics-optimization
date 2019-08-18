@@ -18,9 +18,9 @@ import org.uma.jmetal.util.AlgorithmRunner;
 import org.uma.jmetal.util.fileoutput.SolutionListOutput;
 import org.uma.jmetal.util.fileoutput.impl.DefaultFileOutputContext;
 
-import com.kmutt.sit.jmetal.algorithm.GeneralNsgaIIIIntegerSolutionBuilder;
+import com.kmutt.sit.jmetal.algorithm.GenericNsgaIIIIntegerSolutionBuilder;
 import com.kmutt.sit.jmetal.problem.LogisticsIntegerConstrainedProblemType1;
-import com.kmutt.sit.jmetal.problem.LogisticsIntegerProblem;
+import com.kmutt.sit.jmetal.problem.GenericLogisticsIntegerProblem;
 import com.kmutt.sit.jmetal.problem.LogisticsIntegerConstrainedProblemType2;
 import com.kmutt.sit.jmetal.problem.LogisticsIntegerConstrainedProblemType3;
 import com.kmutt.sit.utilities.JavaUtils;
@@ -61,7 +61,7 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 				problem = new LogisticsIntegerConstrainedProblemType1(this.helper);		
 			}
 		} else {
-			problem = new LogisticsIntegerProblem(this.helper);
+			problem = new GenericLogisticsIntegerProblem(this.helper);
 		}
 		
 	    double crossoverProbability = 0.9 ;
@@ -87,10 +87,13 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 		 */
 	    
 		if(helper.getNsgaVersion().equalsIgnoreCase("mnsgaiii")) {			
-			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
+			 algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 						.buildModifiedNsgaIIIIntegerSolution();
+		} else if(helper.getNsgaVersion().equalsIgnoreCase("ensgaiii")) {
+			algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
+					.buildEnsgaIIIIntegerSolution();
 		} else {			
-			 algorithm = new GeneralNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
+			 algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 						.buildNsgaIIIIntegerSolution();			
 		}
 	    

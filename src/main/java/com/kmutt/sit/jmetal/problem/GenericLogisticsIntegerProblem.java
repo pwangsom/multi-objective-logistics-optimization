@@ -10,19 +10,15 @@ import org.uma.jmetal.solution.IntegerSolution;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
-public class LogisticsIntegerProblem extends AbstractIntegerProblem {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+@SuppressWarnings("serial")
+public class GenericLogisticsIntegerProblem extends AbstractIntegerProblem {
 	
-	private Logger logger = LoggerFactory.getLogger(LogisticsIntegerProblem.class);
+	private Logger logger = LoggerFactory.getLogger(GenericLogisticsIntegerProblem.class);
 	private NsgaIIIHelper helper;
 	
 	final private int NO_OBJECTIVES = 3;
 	
-	public LogisticsIntegerProblem(NsgaIIIHelper helper) {
+	public GenericLogisticsIntegerProblem(NsgaIIIHelper helper) {
 		
 		setNumberOfObjectives(NO_OBJECTIVES);
 		setName("LogisticsIntegerProblem");
