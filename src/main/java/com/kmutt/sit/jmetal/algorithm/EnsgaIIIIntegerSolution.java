@@ -11,9 +11,6 @@ import org.uma.jmetal.algorithm.multiobjective.nsgaiii.NSGAIIIBuilder;
 import org.uma.jmetal.solution.IntegerSolution;
 import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 
-import com.kmutt.sit.jmetal.problem.ExtremeSolution;
-import com.kmutt.sit.jmetal.problem.GenericLogisticsIntegerProblem;
-import com.kmutt.sit.jmetal.problem.Type1ContrainedLogisticsIntegerProblem;
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
@@ -48,12 +45,6 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 		return population;
 	}
 	
-	private void setAttributeOfGenericLogisticsIntegerProblem(IntegerSolution solution, Integer value) {
-		if(this.problem instanceof Type1ContrainedLogisticsIntegerProblem) {
-			((GenericLogisticsIntegerProblem) this.problem).setAttribute(solution, new ExtremeSolution(value));
-		}
-	}
-	
 	protected IntegerSolution getFirstExtremeSolution() {
 		IntegerSolution extreme = getProblem().createSolution();
 		JMetalRandom randomGenerator = JMetalRandom.getInstance();
@@ -62,8 +53,6 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 		for(int i = 0; i < getProblem().getNumberOfVariables(); i++) {
 			extreme.setVariableValue(i, value);
 		}
-		
-		setAttributeOfGenericLogisticsIntegerProblem(extreme, 0);
 		
 		return extreme;
 	}
@@ -100,8 +89,6 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			}			
 		}
 		
-		setAttributeOfGenericLogisticsIntegerProblem(extreme, 1);
-		
 		return extreme;
 	}
 	
@@ -118,8 +105,6 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			
 			extreme.setVariableValue(i, chromosomeList.get(value));
 		}
-
-		setAttributeOfGenericLogisticsIntegerProblem(extreme, 2);
 		
 		return extreme;
 	}
@@ -178,8 +163,6 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 			
 			i[0]++;
 		});
-		
-		setAttributeOfGenericLogisticsIntegerProblem(extreme, 3);
 		
 		return extreme;
 	}

@@ -39,9 +39,7 @@ public class Type1ContrainedLogisticsIntegerProblem extends AbstractConstrainedL
 
 	    overallConstraintViolationDegree.setAttribute(solution, overallConstraintViolation);
 	    numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
-	    
-	    displayExtremeSolutions(solution);
-	    
+	    	    
 	    utilizationConstraintViolation = 0.0;
 	    	    
 		logger.debug("");
