@@ -16,7 +16,9 @@ public abstract class AbstractConstrainedLogisticsIntegerProblem extends Generic
 	private Logger logger = LoggerFactory.getLogger(AbstractConstrainedLogisticsIntegerProblem.class);	
 
 	protected int no_constraints = 1;	
-	protected double utilizationConstraintViolation = 0.0;
+	protected double utilizationType1 = 0.0;
+	protected double utilizationType2 = 0.0;
+	protected double familiarityType1 = 0.0;
 
 	public OverallConstraintViolation<IntegerSolution> overallConstraintViolationDegree;
 	public NumberOfViolatedConstraints<IntegerSolution> numberOfViolatedConstraints;
@@ -40,7 +42,9 @@ public abstract class AbstractConstrainedLogisticsIntegerProblem extends Generic
 		logger.debug("");
 		logger.debug("Start: Evaluate");
 		
-		utilizationConstraintViolation = 0.0;
+		utilizationType1 = 0.0;
+		utilizationType2 = 0.0;
+		familiarityType1 = 0.0;
 		
 		GeneratedSolutionEvaluator evaluator = new GeneratedSolutionEvaluator(solution, helper);
 		evaluator.evaluate();
@@ -49,10 +53,12 @@ public abstract class AbstractConstrainedLogisticsIntegerProblem extends Generic
 		solution.setObjective(1, evaluator.getUtilization() * -1);
 		solution.setObjective(2, evaluator.getFamiliarity() * -1);
 		
-		utilizationConstraintViolation = evaluator.getUtilizationConstraintScore();
+		utilizationType1 = evaluator.getUtilizationConstraintScore();
+		utilizationType2 = evaluator.getUtilizationConstraintValue();
+		familiarityType1 = evaluator.getFamiliarityConstraintValue();
 		
-		logger.debug(String.format("[No.Of Cars: %.0f, Utilization: %.4f, Fammilarity: %.4f, Constraints Value: %.2f]", 
-				solution.getObjective(0), solution.getObjective(1), solution.getObjective(2), utilizationConstraintViolation));
+		logger.debug(String.format("[No.Of Cars: %.0f, Utilization: %.4f, Fammilarity: %.4f, Constraint 1: %.2f, Constraint 2: %.2f, Constraint 3: %.2f]", 
+				solution.getObjective(0), solution.getObjective(1), solution.getObjective(2), utilizationType1, utilizationType2, familiarityType1));
 		
 		logger.debug("");
 		logger.debug("Finished: Evaluate");

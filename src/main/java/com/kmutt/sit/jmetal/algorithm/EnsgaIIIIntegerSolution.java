@@ -14,6 +14,7 @@ import org.uma.jmetal.util.pseudorandom.JMetalRandom;
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
+import com.kmutt.sit.utilities.JavaUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -98,12 +99,17 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 		JMetalRandom randomGenerator = JMetalRandom.getInstance();
 				
 		for(int i = 0; i < extreme.getNumberOfVariables(); i++) {			
-			Integer areaCode = this.helper.getShipmentList().get(i).getAreaCode();
+			Integer areaCode = this.helper.getShipmentList().get(i).getAreaCode();			
+			Integer value = randomGenerator.nextInt(extreme.getLowerBound(0), extreme.getUpperBound(0));
+			
 			List<Integer> chromosomeList = this.helper.getLogisticsHelper().getAreaChromosomeMapping().get(this.helper.getVehicleType() + "_" + areaCode);
 			
-			Integer value = randomGenerator.nextInt(0, chromosomeList.size()-1);
-			
-			extreme.setVariableValue(i, chromosomeList.get(value));
+			if(!JavaUtils.isNull(chromosomeList) && !chromosomeList.isEmpty()) {
+				value = randomGenerator.nextInt(0, chromosomeList.size()-1);				
+				extreme.setVariableValue(i, chromosomeList.get(value));
+			} else {				
+				extreme.setVariableValue(i, value);
+			}
 		}
 		
 		return extreme;
@@ -121,43 +127,53 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 		
 		this.helper.getShipmentList().stream().forEach(s -> {
 			
-			Integer areaCode = s.getAreaCode();			
-			List<Integer> chromosomeList = this.helper.getLogisticsHelper().getAreaChromosomeMapping().get(this.helper.getVehicleType() + "_" + areaCode);
-			Integer[] value = {randomGenerator.nextInt(0, chromosomeList.size() - 1)};
-			Integer[] chromosomeId = {chromosomeList.get(value[0])};
+			Integer areaCode = s.getAreaCode();	
+			Integer[] value = {randomGenerator.nextInt(extreme.getLowerBound(0), extreme.getUpperBound(0))};
+			Integer[] chromosomeId = {value[0]};
 			
 			List<RouteCapacity> routeInfos;
 			RouteCapacity routeC;
 			
-			if(assignedAreaRouteMapping.containsKey(areaCode)) {
-				routeInfos = assignedAreaRouteMapping.get(areaCode);
-				routeC = routeInfos.get(routeInfos.size() - 1);
+			List<Integer> chromosomeList = this.helper.getLogisticsHelper().getAreaChromosomeMapping().get(this.helper.getVehicleType() + "_" + areaCode);
+			
+			if(!JavaUtils.isNull(chromosomeList) && !chromosomeList.isEmpty()) {
+				value[0] = randomGenerator.nextInt(0, chromosomeList.size() - 1);
+				chromosomeId[0] = chromosomeList.get(value[0]);				
 				
-				if(routeC.getCurrentShipments() < routeC.getUtilizedShipments()) {
-					routeC.setCurrentShipments(routeC.getCurrentShipments() + 1);
-				} else {
+				if(assignedAreaRouteMapping.containsKey(areaCode)) {
+					routeInfos = assignedAreaRouteMapping.get(areaCode);
+					routeC = routeInfos.get(routeInfos.size() - 1);
 					
-					if(routeInfos.size() < chromosomeList.size()) {						
-						while(routeInfos.stream().map(m -> m.getChromosomeId()).collect(Collectors.toList()).contains(chromosomeId[0])) {
-							value[0] = randomGenerator.nextInt(0, chromosomeList.size() - 1);
-							chromosomeId[0] = chromosomeList.get(value[0]);
-						}
+					if(routeC.getCurrentShipments() < routeC.getUtilizedShipments()) {
+						routeC.setCurrentShipments(routeC.getCurrentShipments() + 1);
 					} else {
-						routeInfos.stream().sorted(Comparator.comparingInt(RouteCapacity::getCurrentShipments));
-						chromosomeId[0] = routeInfos.get(0).getChromosomeId();
+						
+						if(routeInfos.size() < chromosomeList.size()) {						
+							while(routeInfos.stream().map(m -> m.getChromosomeId()).collect(Collectors.toList()).contains(chromosomeId[0])) {
+								value[0] = randomGenerator.nextInt(0, chromosomeList.size() - 1);
+								chromosomeId[0] = chromosomeList.get(value[0]);
+							}
+						} else {
+							routeInfos.stream().sorted(Comparator.comparingInt(RouteCapacity::getCurrentShipments));
+							chromosomeId[0] = routeInfos.get(0).getChromosomeId();
+						}
+								
+						routeC =createNewRoute(routes, chromosomeId[0]);	
+						
+						routeInfos.add(routeC);					
 					}
-							
-					routeC =createNewRoute(routes, chromosomeId[0]);	
+				} else {
+					routeInfos= new ArrayList<RouteCapacity>();				
+					routeC = createNewRoute(routes, chromosomeId[0]);				
+					routeInfos.add(routeC);
 					
-					routeInfos.add(routeC);					
-				}
-			} else {
-				routeInfos= new ArrayList<RouteCapacity>();				
-				routeC = createNewRoute(routes, chromosomeId[0]);				
-				routeInfos.add(routeC);
+					assignedAreaRouteMapping.put(areaCode, routeInfos);
+				}				
 				
-				assignedAreaRouteMapping.put(areaCode, routeInfos);
-			}			
+			} else {
+				routeC = new RouteCapacity();
+				routeC.setChromosomeId(chromosomeId[0]);
+			}
 			
 			extreme.setVariableValue(i[0], routeC.getChromosomeId());
 			
