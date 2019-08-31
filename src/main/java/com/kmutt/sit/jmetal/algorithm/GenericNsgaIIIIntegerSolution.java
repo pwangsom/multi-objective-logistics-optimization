@@ -14,7 +14,7 @@ public abstract class GenericNsgaIIIIntegerSolution extends NSGAIII<IntegerSolut
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Logger logger = LoggerFactory.getLogger(EnsgaIIIIntegerSolution.class);
+	private Logger logger = LoggerFactory.getLogger(FourEnsgaIIIIntegerSolution.class);
 	protected NsgaIIIHelper helper;
 	
 	public GenericNsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {

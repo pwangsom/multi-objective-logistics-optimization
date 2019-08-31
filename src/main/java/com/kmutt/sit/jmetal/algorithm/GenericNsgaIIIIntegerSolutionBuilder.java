@@ -54,9 +54,9 @@ public class GenericNsgaIIIIntegerSolutionBuilder {
 		return algorithm;
 	}
 	
-	public EnsgaIIIIntegerSolution buildEnsgaIIIIntegerSolution() {
+	public FourEnsgaIIIIntegerSolution buildFourEnsgaIIIIntegerSolution() {
 		
-		EnsgaIIIIntegerSolution algorithm = new EnsgaIIIIntegerSolution(builder, helper) {
+		FourEnsgaIIIIntegerSolution algorithm = new FourEnsgaIIIIntegerSolution(builder, helper) {
 
 			/**
 			 * 
@@ -66,4 +66,17 @@ public class GenericNsgaIIIIntegerSolutionBuilder {
 		
 		return algorithm;
 	}
+	
+	public ThreeEnsgaIIIIntegerSolution buildThreeEnsgaIIIIntegerSolution() {
+		
+		ThreeEnsgaIIIIntegerSolution algorithm = new ThreeEnsgaIIIIntegerSolution(builder, helper) {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+		};
+		
+		return algorithm;
+	}	
 }

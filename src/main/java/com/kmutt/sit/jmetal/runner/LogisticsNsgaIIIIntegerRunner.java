@@ -89,9 +89,12 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 		if(helper.getNsgaVersion().equalsIgnoreCase("mnsgaiii")) {			
 			 algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 						.buildModifiedNsgaIIIIntegerSolution();
-		} else if(helper.getNsgaVersion().equalsIgnoreCase("ensgaiii")) {
+		} else if(helper.getNsgaVersion().equalsIgnoreCase("ensgaiii3")) {
 			algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
-					.buildEnsgaIIIIntegerSolution();
+					.buildThreeEnsgaIIIIntegerSolution();
+		} else if(helper.getNsgaVersion().equalsIgnoreCase("ensgaiii4")) {
+			algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
+					.buildFourEnsgaIIIIntegerSolution();
 		} else {			
 			 algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 						.buildNsgaIIIIntegerSolution();			

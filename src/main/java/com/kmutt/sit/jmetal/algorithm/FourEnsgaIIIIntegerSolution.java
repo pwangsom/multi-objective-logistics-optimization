@@ -20,9 +20,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @SuppressWarnings("serial")
-public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
+public class FourEnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 	
-	public EnsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {
+	public FourEnsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {
 		super(builder, helper);
 	}
 	
@@ -218,12 +218,12 @@ public class EnsgaIIIIntegerSolution extends GenericNsgaIIIIntegerSolution {
 	
 	@Override
 	public String getName() {
-		return "E-NSGA-III for Integer Solution";
+		return "Four E-NSGA-III for Integer Solution";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Extreme Nondominated Sorting Genetic Algorithm version III for Integer Solution";
+		return "Four Extreme Nondominated Sorting Genetic Algorithm version III for Integer Solution";
 	}
 	
 	@Getter
