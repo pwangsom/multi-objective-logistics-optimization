@@ -47,4 +47,7 @@ public class LogisticsJobResult {
 
 	@Column(name="solution_index")
 	private Integer solutionIndex;
+	
+	@Column(name="is_dominate_benchmark")
+	private Integer isDominateBenchmark;
 }

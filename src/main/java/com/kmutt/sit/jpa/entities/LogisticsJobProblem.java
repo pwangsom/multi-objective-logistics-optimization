@@ -1,5 +1,7 @@
 package com.kmutt.sit.jpa.entities;
 
+import java.math.BigDecimal;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -45,6 +47,12 @@ public class LogisticsJobProblem {
 
 	@Column(name="optional_parameter")
 	private String optionalParameter;
+	
+	@Column(name="normal_hypervolume")
+	private BigDecimal normalHypervolume;
+	
+	@Column(name="hypervolume")
+	private BigDecimal hypervolume;
 	
 	/*
 	 * @Temporal(TemporalType.DATE)
