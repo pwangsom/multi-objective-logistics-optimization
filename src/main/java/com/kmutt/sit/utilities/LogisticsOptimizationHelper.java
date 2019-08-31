@@ -25,6 +25,7 @@ import com.kmutt.sit.jpa.entities.DhlRouteUtilization;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 import com.kmutt.sit.jpa.entities.LogisticsJob;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
+import com.kmutt.sit.jpa.entities.LogisticsJobProblemBenchmark;
 import com.kmutt.sit.jpa.entities.LogisticsJobResult;
 import com.kmutt.sit.jpa.entities.LogisticsJobResultDetail;
 import com.kmutt.sit.jpa.entities.services.StoredProcedureService;
@@ -36,6 +37,7 @@ import com.kmutt.sit.jpa.respositories.DhlRoutePostcodeAreaRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteRespository;
 import com.kmutt.sit.jpa.respositories.DhlRouteUtilizationRepository;
 import com.kmutt.sit.jpa.respositories.DhlShipmentRepository;
+import com.kmutt.sit.jpa.respositories.LogisticsJobProblemBenchmarkRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobProblemRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobRepository;
 import com.kmutt.sit.jpa.respositories.LogisticsJobResultDetailRepository;
@@ -70,6 +72,8 @@ public class LogisticsOptimizationHelper {
     private LogisticsJobResultRepository logisticsJobResultRepository; 
     @Autowired
     private LogisticsJobResultDetailRepository logisticsJobResultDetailRepository;
+    @Autowired
+    private LogisticsJobProblemBenchmarkRepository logisticsJobProblemBenchmarkRepository;
     @Autowired
     private StoredProcedureService storedProcedureService;
 
@@ -161,6 +165,9 @@ public class LogisticsOptimizationHelper {
     private List<DhlRouteAreaPortion> routeAreaPortionList;
     
     @Getter
+    private List<LogisticsJobProblemBenchmark> problemBenchmarkList;
+    
+    @Getter
     private Map<String, DhlRouteUtilization> routeUtilizationMapping;    
 
     @Getter
@@ -185,6 +192,7 @@ public class LogisticsOptimizationHelper {
     	this.bikeTypes = Arrays.asList(bikeType.split(","));
     	this.routeAreaList = dhlRoutePostcodeAreaRespository.findAll();
     	this.routeAreaPortionList = dhlRouteAreaPortionRepository.findAll();
+    	this.problemBenchmarkList = logisticsJobProblemBenchmarkRepository.findAll();
     	
     	initialRouteUtilizationMapping();
     	initialDailyRouteAreaUtilizationMapping();
