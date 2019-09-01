@@ -151,12 +151,23 @@ public class LogisticsOptimizationHelper {
     
     @Getter
     @Value("${output.file.enabled}")
-    private boolean isOutputFileEnabled;       
+    private boolean isOutputFileEnabled;
+    
+    @Getter
+    @Value("${multiple.algorithm.enabled}")
+    private boolean isMultipleAlgorithmEnabled;
+    
+    @Getter
+    @Value("${multiple.algorithm.list}")
+    private String algorithms;
     
     @Getter
     private List<String> vehicleTypeList;
     private List<String> vanTypes;
     private List<String> bikeTypes;
+    
+    @Getter
+    private List<String> algorithmList;
     
     @Getter
     private List<DhlRoutePostcodeArea> routeAreaList;
@@ -193,6 +204,10 @@ public class LogisticsOptimizationHelper {
     	this.routeAreaList = dhlRoutePostcodeAreaRespository.findAll();
     	this.routeAreaPortionList = dhlRouteAreaPortionRepository.findAll();
     	this.problemBenchmarkList = logisticsJobProblemBenchmarkRepository.findAll();
+    	
+    	if(isMultipleAlgorithmEnabled) {
+    		this.algorithmList = Arrays.asList(algorithms.split(","));
+    	}
     	
     	initialRouteUtilizationMapping();
     	initialDailyRouteAreaUtilizationMapping();
