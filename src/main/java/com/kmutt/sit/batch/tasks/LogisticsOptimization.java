@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.kmutt.sit.optimization.MultipleOptimizationManager;
 import com.kmutt.sit.optimization.OptimizationManager;
 
 @Service
@@ -20,8 +21,14 @@ public class LogisticsOptimization implements Tasklet {
 	@Autowired
 	private OptimizationManager optimizationManager;
 	
+	@Autowired
+	private MultipleOptimizationManager multiplerOptimizationManager;
+	
     @Value("${generated.evaluator.enabled}")
     private boolean isEnabled;
+    
+    @Value("${multiple.algorithm.enabled}")
+    private boolean isMultipleAlgorithmEnabled;
 	
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -32,8 +39,13 @@ public class LogisticsOptimization implements Tasklet {
         String jobId = chunkContext.getStepContext().getStepExecution().getJobParameters().getString("JobID");        
 
         if(isEnabled) {            
-            optimizationManager.setJobId(jobId);
-            optimizationManager.opitmize();
+        	if(isMultipleAlgorithmEnabled) {
+        		multiplerOptimizationManager.setJobId(jobId);
+        		multiplerOptimizationManager.opitmize();
+        	} else {
+                optimizationManager.setJobId(jobId);
+                optimizationManager.opitmize();        		
+        	}
         }
         
         logger.info("LogisticsOptimizer: finished..");  
