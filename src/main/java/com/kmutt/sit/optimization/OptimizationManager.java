@@ -2,9 +2,7 @@ package com.kmutt.sit.optimization;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -33,19 +31,17 @@ public class OptimizationManager {
 	private static Logger logger = LoggerFactory.getLogger(OptimizationManager.class);
 	
 	@Setter
-	private String jobId;
+	protected String jobId;
 	
 	@Autowired
-	private NsgaIIIHelper nsgaIIIHelper;
+	protected NsgaIIIHelper nsgaIIIHelper;
 	
-	private List<DhlRoute> vanList;
-	private List<DhlRoute> bikeList;
-	private Map<String, Integer> scoreMapping;
+	protected List<DhlRoute> vanList;
+	protected List<DhlRoute> bikeList;
 	
 	public OptimizationManager() {
 		vanList = new ArrayList<DhlRoute>();
 		bikeList = new ArrayList<DhlRoute>();
-		scoreMapping = new HashMap<String, Integer>();
 	}
 	
 	public void opitmize() {
@@ -80,10 +76,10 @@ public class OptimizationManager {
         	}
         });
 
-        logger.info("OptimizationManager:: Job ID: " + jobId + "\t finished..");  
+        logger.info("OptimizationManager: Job ID: " + jobId + "\t finished..");  
 	}
 	
-	private void allocateDailyShipmentForVan(String shipmentDate) {
+	protected void allocateDailyShipmentForVan(String shipmentDate) {
         logger.info("allocateDailyShipmentForVan: start....."); 
 		
 		List<DhlShipment> shipmentList = nsgaIIIHelper.getLogisticsHelper().retrieveValidDailyShipmentForVan(shipmentDate)
@@ -98,7 +94,7 @@ public class OptimizationManager {
         logger.info("allocateDailyShipmentForVan: finished..");  		
 	}
 	
-	private void allocateDailyShipmentForBike(String shipmentDate) {
+	protected void allocateDailyShipmentForBike(String shipmentDate) {
         logger.info("allocateDailyShipmentForBike: start....."); 
 
 		List<DhlShipment> shipmentList = nsgaIIIHelper.getLogisticsHelper().retrieveDailyValidShipmentForBike(shipmentDate)
@@ -113,11 +109,11 @@ public class OptimizationManager {
         logger.info("allocateDailyShipmentForBike: finished..");  
 	}
 	
-	private void printShipmentEmpty(String shipmentDate, String vehicleType) {
+	protected void printShipmentEmpty(String shipmentDate, String vehicleType) {
 		logger.warn("There is no shipment on {" + shipmentDate + "} for {" + vehicleType + "}.");
 	}
 	
-	private void runNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
+	protected void runNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
 		
 		prepareNsgaIIIHelperBeforeRunningNsgaIII(vehicleType, shipmentList, routeList);
 		
@@ -159,7 +155,7 @@ public class OptimizationManager {
         }
 	}
 	
-	private void prepareNsgaIIIHelperBeforeRunningNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
+	protected void prepareNsgaIIIHelperBeforeRunningNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
 		nsgaIIIHelper.setVehicleType(vehicleType);
 		nsgaIIIHelper.setShipmentList(shipmentList);
 		nsgaIIIHelper.setRouteList(routeList);
@@ -167,7 +163,7 @@ public class OptimizationManager {
 		nsgaIIIHelper.setVarFile(OptimizationHelper.getFileOutputName(nsgaIIIHelper, vehicleType.toLowerCase(), "var"));		
 	}
 		
-	private void previewLogisticsOperate() {		
+	protected void previewLogisticsOperate() {		
 		logger.debug("Job ID: " + nsgaIIIHelper.getJobId());
 		logger.debug("Shipment Date: " + nsgaIIIHelper.getShipmentDate());
 		logger.debug("Vehicle Type: " + nsgaIIIHelper.getVehicleType());
@@ -190,17 +186,14 @@ public class OptimizationManager {
 		logger.debug("");
 	}
 	
-	private void prepareInformation() {		
+	protected void prepareInformation() {		
 
-		scoreMapping = nsgaIIIHelper.getLogisticsHelper().retrieveAreaRouteScoreMap();
 		nsgaIIIHelper.setJobId(jobId);
-		nsgaIIIHelper.setScoreMapping(scoreMapping);
 		
 		vanList = nsgaIIIHelper.getLogisticsHelper().retrieveRoutesOfVan();
 		bikeList = nsgaIIIHelper.getLogisticsHelper().retrieveRoutesOfBike();
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("No. of Score Mapping: " + scoreMapping.size()); 
 
 			logger.debug(""); 
 			logger.debug("List of vans"); 
