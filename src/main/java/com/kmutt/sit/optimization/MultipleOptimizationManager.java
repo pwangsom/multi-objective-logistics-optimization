@@ -6,8 +6,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.uma.jmetal.solution.IntegerSolution;
+import org.uma.jmetal.util.SolutionListUtils;
 
 import com.kmutt.sit.jmetal.front.ParetoSet;
+import com.kmutt.sit.jmetal.runner.LogisticsNsgaIIIIntegerRunner;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 
@@ -28,11 +31,14 @@ public class MultipleOptimizationManager extends OptimizationManager {
 	
 	protected void runNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
 		
-		List<ParetoSet> allParetoSets = new ArrayList<ParetoSet>(); 
+		List<ParetoSet> allParetoSets = new ArrayList<ParetoSet>();
+		List<IntegerSolution> dateParetoSolutions = new ArrayList<IntegerSolution>();
 		
-		algorithmList.stream().forEach(algorithm ->{
+		for (String algorithm : algorithmList) {
 			
 			prepareNsgaIIIHelperBeforeRunningNsgaIII(vehicleType, shipmentList, routeList, algorithm);
+
+			List<IntegerSolution> algorithmParetoSolutions = new ArrayList<IntegerSolution>();
 			
 			int maxRun = nsgaIIIHelper.getMaxRun();
 			
@@ -44,16 +50,39 @@ public class MultipleOptimizationManager extends OptimizationManager {
 
 	            logger.info(runInfo + ": Starting....");
 	        	
-	            nsgaIIIHelper.setCurrentRun(i);
-	        	
-				/*
-				 * LogisticsNsgaIIIIntegerRunner runner = new
-				 * LogisticsNsgaIIIIntegerRunner(nsgaIIIHelper); runner.setRunnerParameter();
-				 * runner.execute();
-				 */
+	            nsgaIIIHelper.setCurrentRun(i);	        	
+				
+				LogisticsNsgaIIIIntegerRunner runner = new LogisticsNsgaIIIIntegerRunner(nsgaIIIHelper);
+				runner.setRunnerParameter();
+				runner.execute();
+				
+				List<IntegerSolution> runParetoSolutions = runner.getSolutions();
+				
+				int algorithmSize = algorithmParetoSolutions.size();
+				int dateSize = dateParetoSolutions.size();
+				
+				algorithmParetoSolutions = mergParetoSolution(algorithmParetoSolutions, runParetoSolutions);
+				dateParetoSolutions = mergParetoSolution(dateParetoSolutions, runParetoSolutions);
+				
+				logger.debug("");
+				logger.info(String.format("Current Algorithm Pareto + Incoming -> New: %d + %d -> %d", algorithmSize, runParetoSolutions.size(), algorithmParetoSolutions.size()));
+				logger.info(String.format("Current Shipment Date Pareto + Incoming -> New: %d + %d -> %d", dateSize, runParetoSolutions.size(), dateParetoSolutions.size()));
+				 
 	    		logger.debug(runInfo + ": Finished....");
-	        }
-		});
+	        }			
+			
+		}
+	}
+	
+	protected List<IntegerSolution> mergParetoSolution(List<IntegerSolution> baseSolutions, List<IntegerSolution> newComingSolutions) {
+		
+		baseSolutions.addAll(newComingSolutions);
+		
+		if(baseSolutions.size() > newComingSolutions.size()) {			
+			baseSolutions = SolutionListUtils.getNondominatedSolutions(baseSolutions);
+		}
+		
+		return baseSolutions;
 	}
 	
 	
