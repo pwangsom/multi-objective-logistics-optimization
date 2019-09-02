@@ -8,13 +8,10 @@ import org.uma.jmetal.solution.IntegerSolution;
 
 import com.kmutt.sit.jmetal.runner.NsgaIIIHelper;
 
+@SuppressWarnings("serial")
 public abstract class GenericNsgaIIIIntegerSolution extends NSGAIII<IntegerSolution> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private Logger logger = LoggerFactory.getLogger(FourEnsgaIIIIntegerSolution.class);
+	private Logger logger = LoggerFactory.getLogger(GenericNsgaIIIIntegerSolution.class);
 	protected NsgaIIIHelper helper;
 	
 	public GenericNsgaIIIIntegerSolution(NSGAIIIBuilder<IntegerSolution> builder, NsgaIIIHelper helper) {

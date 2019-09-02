@@ -17,7 +17,7 @@ import org.uma.jmetal.util.point.util.PointSolution;
 
 import com.kmutt.sit.jmetal.front.ModifiedFrontNormalizer;
 import com.kmutt.sit.jmetal.front.ParetoSet;
-import com.kmutt.sit.jmetal.runner.LogisticsNsgaIIIIntegerRunner;
+import com.kmutt.sit.jmetal.runner.LogisticsAlgorithmIntegerSolutionRunner;
 import com.kmutt.sit.jpa.entities.DhlRoute;
 import com.kmutt.sit.jpa.entities.DhlShipment;
 import com.kmutt.sit.jpa.entities.LogisticsJobProblem;
@@ -153,7 +153,7 @@ public class MultipleOptimizationManager extends OptimizationManager {
 	}
 	
 	protected List<IntegerSolution> runAlgorithm(){		
-		LogisticsNsgaIIIIntegerRunner runner = new LogisticsNsgaIIIIntegerRunner(nsgaIIIHelper);
+		LogisticsAlgorithmIntegerSolutionRunner runner = new LogisticsAlgorithmIntegerSolutionRunner(nsgaIIIHelper);
 		runner.setRunnerParameter();
 		runner.execute();
 		

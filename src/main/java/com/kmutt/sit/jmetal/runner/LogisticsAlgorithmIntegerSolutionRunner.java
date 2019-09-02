@@ -19,6 +19,7 @@ import org.uma.jmetal.util.fileoutput.SolutionListOutput;
 import org.uma.jmetal.util.fileoutput.impl.DefaultFileOutputContext;
 
 import com.kmutt.sit.jmetal.algorithm.GenericNsgaIIIIntegerSolutionBuilder;
+import com.kmutt.sit.jmetal.algorithm.GenericNsgaIIIntegerBuilder;
 import com.kmutt.sit.jmetal.problem.Type1ContrainedLogisticsIntegerProblem;
 import com.kmutt.sit.jmetal.problem.GenericLogisticsIntegerProblem;
 import com.kmutt.sit.jmetal.problem.Type2ConstrainedLogisticsIntegerProblem;
@@ -27,9 +28,9 @@ import com.kmutt.sit.utilities.JavaUtils;
 
 import lombok.Getter;
 
-public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
+public class LogisticsAlgorithmIntegerSolutionRunner extends AbstractAlgorithmRunner {
 
-	private Logger logger = LoggerFactory.getLogger(LogisticsNsgaIIIIntegerRunner.class);
+	private Logger logger = LoggerFactory.getLogger(LogisticsAlgorithmIntegerSolutionRunner.class);
 	
 	private Problem<IntegerSolution> problem;
 	private Algorithm<List<IntegerSolution>> algorithm;
@@ -46,7 +47,7 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 	@Getter
 	private List<IntegerSolution> solutions;
 	
-	public LogisticsNsgaIIIIntegerRunner(NsgaIIIHelper helper) {
+	public LogisticsAlgorithmIntegerSolutionRunner(NsgaIIIHelper helper) {
 		this.helper = helper;
 	}
 	
@@ -95,6 +96,9 @@ public class LogisticsNsgaIIIIntegerRunner extends AbstractAlgorithmRunner {
 		} else if(helper.getNsgaVersion().equalsIgnoreCase("ensgaiii4")) {
 			algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 					.buildFourEnsgaIIIIntegerSolution();
+		} else if(helper.getNsgaVersion().equalsIgnoreCase("nsgaii")) {
+			algorithm = new GenericNsgaIIIntegerBuilder(problem, crossover, mutation, selection, maxIteration, 92, helper)
+					.buildNsgaIIIntegerSolution();
 		} else {			
 			 algorithm = new GenericNsgaIIIIntegerSolutionBuilder(problem, crossover, mutation, selection, maxIteration, helper)
 						.buildNsgaIIIIntegerSolution();			
