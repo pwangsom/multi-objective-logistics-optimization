@@ -54,6 +54,9 @@ public class LogisticsJobProblem {
 	@Column(name="hypervolume")
 	private BigDecimal hypervolume;
 	
+	@Column(name="run")
+	private Integer run;
+	
 	/*
 	 * @Temporal(TemporalType.DATE)
 	 * 

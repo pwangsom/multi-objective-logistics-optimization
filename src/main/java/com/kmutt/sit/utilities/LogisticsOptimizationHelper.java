@@ -250,6 +250,10 @@ public class LogisticsOptimizationHelper {
     	return persistProblem;
     }
     
+    public void updateLogisticsJobProblem(LogisticsJobProblem problem) {
+    	logisticsJobProblemRepository.save(problem);
+    }
+    
     @Transactional
     public void saveLogisticsJobResult(List<LogisticsJobResult> results) {    
     	logisticsJobResultRepository.saveAll(results);

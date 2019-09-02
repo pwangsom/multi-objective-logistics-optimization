@@ -50,11 +50,7 @@ public class OptimizationManager {
                 
         prepareInformation();
         
-        // Insert table logistics_job
-        if(nsgaIIIHelper.getLogisticsHelper().isOutputDatabaseEnabled()) {    
-        	OptimizationHelper.saveLogisticsJob(nsgaIIIHelper);
-            logger.info("Logistics Job is saved...");  
-        }        
+        saveLogisticsJob();      
         
         List<String> shipmentDateList = nsgaIIIHelper.getLogisticsHelper().retrieveShipmentDateList();
         
@@ -79,6 +75,14 @@ public class OptimizationManager {
         logger.info("OptimizationManager: Job ID: " + jobId + "\t finished..");  
 	}
 	
+	protected void saveLogisticsJob() {
+        // Insert table logistics_job
+        if(nsgaIIIHelper.getLogisticsHelper().isOutputDatabaseEnabled()) {    
+        	OptimizationHelper.saveLogisticsJob(nsgaIIIHelper);
+            logger.info("Logistics Job is saved...");  
+        } 
+	}
+	
 	protected void allocateDailyShipmentForVan(String shipmentDate) {
         logger.info("allocateDailyShipmentForVan: start....."); 
 		
@@ -88,7 +92,7 @@ public class OptimizationManager {
 		if(shipmentList.isEmpty()) {
 			printShipmentEmpty(shipmentDate, "Van");			
 		} else {
-			runNsgaIII("Van", shipmentList, vanList);
+			execute("Van", shipmentList, vanList);
 		}
 
         logger.info("allocateDailyShipmentForVan: finished..");  		
@@ -103,7 +107,7 @@ public class OptimizationManager {
 		if(shipmentList.isEmpty()) {
 			printShipmentEmpty(shipmentDate, "Bike");
 		} else {
-			runNsgaIII("Bike", shipmentList, bikeList);
+			execute("Bike", shipmentList, bikeList);
 		}
 
         logger.info("allocateDailyShipmentForBike: finished..");  
@@ -113,7 +117,7 @@ public class OptimizationManager {
 		logger.warn("There is no shipment on {" + shipmentDate + "} for {" + vehicleType + "}.");
 	}
 	
-	protected void runNsgaIII(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
+	protected void execute(String vehicleType, List<DhlShipment> shipmentList, List<DhlRoute> routeList) {
 		
 		prepareNsgaIIIHelperBeforeRunningNsgaIII(vehicleType, shipmentList, routeList);
 		
@@ -145,9 +149,14 @@ public class OptimizationManager {
         ModifiedFrontNormalizer frontNormalizer = new ModifiedFrontNormalizer(referenceFront);            
         @SuppressWarnings("unchecked")
 		List<PointSolution> normalizedParetoSet = (List<PointSolution>) frontNormalizer.normalize(paretoSet);
-		
+        
+        saveLogisticsJobProblem(paretoSet, normalizedParetoSet);
+	}
+	
+	protected void saveLogisticsJobProblem(List<IntegerSolution> paretoSet, List<PointSolution> normalizedParetoSet) {		
 		// Insert table logistics_job_problem        
         if(nsgaIIIHelper.getLogisticsHelper().isOutputDatabaseEnabled()) {
+        	nsgaIIIHelper.setCurrentRun(0);
             LogisticsJobProblem problem = OptimizationHelper.saveLogisticsJobProblem(nsgaIIIHelper, paretoSet.size());
             logger.info("Logistics Job Problem is saved...");
             OptimizationHelper.saveLogisticsJobResults(nsgaIIIHelper, problem.getProblemId(), paretoSet, normalizedParetoSet);

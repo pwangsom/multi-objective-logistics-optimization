@@ -24,6 +24,9 @@ public class LogisticsJob {
 	@Column(name="vehicle_config")
 	private String vehicleConfig;
 	
+	@Column(name="is_multiple")
+	private Integer isMultiple;
+	
 	/*
 	 * @Temporal(TemporalType.DATE)
 	 * 
