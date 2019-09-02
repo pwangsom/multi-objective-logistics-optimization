@@ -55,6 +55,7 @@ public class NsgaIIIHelper {
     @Value("${nsga.max.iteration}")
     private Integer maxIteration;
     
+    @Setter
     @Value("${nsga.version}")
     private String nsgaVersion;    
 }

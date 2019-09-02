@@ -41,6 +41,7 @@ public class LogisticsOptimization implements Tasklet {
         if(isEnabled) {            
         	if(isMultipleAlgorithmEnabled) {
         		multiplerOptimizationManager.setJobId(jobId);
+        		multiplerOptimizationManager.retrieveExtraInformation();
         		multiplerOptimizationManager.opitmize();
         	} else {
                 optimizationManager.setJobId(jobId);
