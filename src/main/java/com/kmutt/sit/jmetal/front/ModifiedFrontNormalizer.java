@@ -48,6 +48,15 @@ public class ModifiedFrontNormalizer extends FrontNormalizer {
 		return FrontUtils.convertFrontToSolutionList(normalizedFront);
 	}
 	
+	@Override
+	public Front normalize(Front front) {
+		if (front == null) {
+			throw new JMetalException("The front is null");
+		}
+
+		return getNormalizedFront(front, maximumValues, minimumValues);
+	}
+	
 	private Front getNormalizedFront(Front front, double[] maximumValues, double[] minimumValues) {
 		if (front.getNumberOfPoints() == 0) {
 			throw new JMetalException("The front is empty");

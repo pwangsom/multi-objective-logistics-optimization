@@ -2,7 +2,6 @@ package com.kmutt.sit.optimization;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -198,6 +197,7 @@ public class OptimizationHelper {
 		return score;
 	}
 		
+	@SuppressWarnings("unused")
 	private static LogisticsJobResultDetail getLogisticsJobResultDetail(NsgaIIIHelper nsgaIIIHelper, Integer problemId, Integer solutionIndex, IntegerSolution solution, String solutionType) {
 					
 		LogisticsJobResultDetail detail = new LogisticsJobResultDetail();
@@ -211,46 +211,6 @@ public class OptimizationHelper {
 		// detail.setRoute(route.getRoute());
 		
 		return detail;
-	}
-	
-	private static IntegerSolution[] getBestEachObjective(List<IntegerSolution> paretoSet) {
-		
-		IntegerSolution[] results = new IntegerSolution[4];
-		
-		Comparator<IntegerSolution> byFirtObjective = new Comparator<IntegerSolution>() {
-			@Override
-			public int compare(IntegerSolution s1, IntegerSolution s2) {
-				return Double.compare(s1.getObjective(0), s2.getObjective(0));
-			}			
-		};
-		
-		Comparator<IntegerSolution> bySecondObjective = new Comparator<IntegerSolution>() {
-			@Override
-			public int compare(IntegerSolution s1, IntegerSolution s2) {
-				return Double.compare(s1.getObjective(1), s2.getObjective(2));
-			}			
-		};
-		
-		Comparator<IntegerSolution> byThirdObjective = new Comparator<IntegerSolution>() {
-			@Override
-			public int compare(IntegerSolution s1, IntegerSolution s2) {
-				return Double.compare(s1.getObjective(2), s2.getObjective(2));
-			}			
-		};
-		
-		paretoSet.sort(byThirdObjective.thenComparing(bySecondObjective).thenComparing(byFirtObjective));
-		results[3] = paretoSet.get(0);
-
-		paretoSet.sort(bySecondObjective.thenComparing(byThirdObjective).thenComparing(byFirtObjective));
-		results[2] = paretoSet.get(0);
-		
-		paretoSet.sort(byFirtObjective.thenComparing(byThirdObjective).thenComparing(bySecondObjective));
-		results[1] = paretoSet.get(0);
-		
-		paretoSet.sort(byFirtObjective.thenComparing(bySecondObjective).thenComparing(byThirdObjective));
-		results[0] = paretoSet.get(0);
-		
-		return results;
 	}
 	
 	private static String getSolutionString(IntegerSolution solution) {

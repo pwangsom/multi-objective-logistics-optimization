@@ -40,6 +40,7 @@ public class LogisticsAlgorithmIntegerSolutionRunner extends AbstractAlgorithmRu
 	private AlgorithmRunner algorithmRunner;
 	
 	private int maxIteration = 300;
+	@SuppressWarnings("unused")
 	private String referenceParetoFront = "src/main/resources/NBI_3_12.pf";
 	
 	private NsgaIIIHelper helper;
