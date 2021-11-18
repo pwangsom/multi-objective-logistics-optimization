@@ -1,5 +1,5 @@
 # Multi-Objective Logistics Optimization
  
-### This project is used for research in the area of multi-objective optimization.
+### This project is used for research in the area of the multi-objective optimization.
 
-Wangsom, P., and Lavangnananda, K., 2019, [ìMulti-Objective Shipment Allocation Using Extreme Nondominated Sorting Genetic Algorithm-III (E-NSGA-III)î](https://ieeexplore.ieee.org/document/8999124), the 18th IEEE International Conference On Machine Learning And Applications (ICMLA), 16-19 Dec. 2019.
+Wangsom, P., and Lavangnananda, K., 2019, [‚ÄúMulti-Objective Shipment Allocation Using Extreme Nondominated Sorting Genetic Algorithm-III (E-NSGA-III)‚Äù](https://ieeexplore.ieee.org/document/8999124), the 18th IEEE International Conference On Machine Learning And Applications (ICMLA), 16-19 Dec. 2019.
